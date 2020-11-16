@@ -412,6 +412,7 @@ namespace Graphs
 
             Console.WriteLine(serialized);
 
+            // Его нельзя десериализовать
             //Graph graph_deserial = JsonConvert.DeserializeObject<Graph>(serialized);
         }
     }
