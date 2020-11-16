@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace Graphs.Graphs
 {
     /// Вершина графа
+    [Serializable]
     public class GraphVertex:ICloneable
     {
         // Название вершины

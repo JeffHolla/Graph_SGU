@@ -1,10 +1,15 @@
 ﻿using Graphs.Graphs;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Xml.Serialization;
+//using System.Text.Json;
+using Json.Net;
+using Newtonsoft.Json;
 
 namespace Graphs
 {
@@ -29,11 +34,14 @@ namespace Graphs
 
             //Task_II_9();
 
-            Task_II_27();
+            //Task_II_27();
 
             //Task_II_V();
 
+            SerializeGraph();
+
             Console.WriteLine();
+            Console.ReadLine();
         }
 
         static void Task_II_27()
@@ -304,5 +312,107 @@ namespace Graphs
             graph.WriteInFile(@"..\..\GraphOut.txt");
         }
 
+        static void SerializeGraph()
+        {
+
+            BinaryFormatter formatter = new BinaryFormatter();
+
+            //List<GraphVertex> graphVertices = new List<GraphVertex>();
+
+            //List<GraphEdge> graphEdges = new List<GraphEdge>();
+
+            //for (int i=1; i<=10; ++i)
+            //{
+            //    graphVertices.Add(new GraphVertex(i.ToString()));
+            //}
+
+            //foreach(var item in graphVertices)
+            //{
+            //    graphEdges.Add(new GraphEdge(item));
+            //}
+
+
+
+            Graph graph = new Graph();
+
+            graph.AddVertex("V1");
+            graph.AddVertex("V2");
+            graph.AddVertex("V3");
+            graph.AddVertex("V4");
+
+            graph.AddVertex("V5");
+
+            graph.PrintVertices();
+            graph.PrintListEdges();
+
+            graph.AddEdgeDict("V1", "V2");
+            graph.AddEdgeDict("V3", "V2");
+            graph.AddEdgeDict("V4", "V1");
+
+            graph.AddEdgeDict("V5", "V3");
+
+            graph.AddVertex("V6");
+            graph.AddVertex("V7");
+            graph.AddVertex("V8");
+
+            graph.AddEdgeDict("V4", "V6");
+            graph.AddEdgeDict("V6", "V1");
+
+            graph.AddEdgeDict("V4", "V7");
+            graph.AddEdgeDict("V7", "V3");
+
+            graph.AddEdgeDict("V5", "V8");
+            graph.AddEdgeDict("V8", "V1");
+
+            graph.PrintVertices();
+            graph.PrintListEdges();
+
+
+            using (FileStream fs = new FileStream(@"..\..\SerializedGraph.dat", FileMode.OpenOrCreate))
+            {
+                formatter.Serialize(fs, graph);
+                Console.WriteLine("\nSerialized!");
+            }
+
+            using (FileStream fs = new FileStream(@"..\..\SerializedGraph.dat", FileMode.OpenOrCreate))
+            {
+
+                Console.WriteLine("\n\nDeserialized!");
+                Graph deserializedGraph = (Graph)formatter.Deserialize(fs);
+
+                deserializedGraph.PrintListEdges();
+            }
+
+
+
+            // XML невозможно реализовать для текущих классов, т.к. либо Dictionary в Graph, 
+            // либо нет пустых конструкторов
+            //XmlSerializer xmlSerializer = new XmlSerializer(typeof(GraphVertex));
+
+            //using (FileStream fs = new FileStream(@"..\..\SerializedGraph.xml", FileMode.OpenOrCreate))
+            //{
+            //    xmlSerializer.Serialize(fs, graph.VertexEdges.Keys);
+            //    Console.WriteLine("\nSerialized vertexes of graph XML!");
+            //}
+
+            //using (FileStream fs = new FileStream(@"..\..\SerializedGraph.xml", FileMode.OpenOrCreate))
+            //{
+
+            //    Console.WriteLine("\n\nDeserialized vertexes of graph from XML!");
+            //    GraphVertex[] deserializedGraph = (GraphVertex[])xmlSerializer.Deserialize(fs);
+
+            //    foreach (var item in deserializedGraph)
+            //    {
+            //        Console.WriteLine(item.Name);
+            //    }
+            //}
+
+            //var serialized = JsonSerializer.Serialize(graph);
+            var serialized = JsonConvert.SerializeObject(graph);
+
+            Console.WriteLine(serialized);
+
+            //Graph graph_deserial = JsonConvert.DeserializeObject<Graph>(serialized);
+        }
     }
 }

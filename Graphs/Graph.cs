@@ -29,6 +29,7 @@ using System.Linq;
 namespace Graphs.Graphs
 {
     /// Граф
+    [Serializable]
     public class Graph // Граф имеет возможность быть смешанным.
     {
         public Dictionary<GraphVertex, List<GraphEdge>> VertexEdges { get; }

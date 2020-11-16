@@ -5,6 +5,7 @@ namespace Graphs.Graphs
     /// <summary>
     /// Ребро графа
     /// </summary>
+    [Serializable]
     public class GraphEdge:ICloneable
     {
         // Связанная вершины
