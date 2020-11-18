@@ -111,7 +111,15 @@ namespace Graphs.Graphs
             if (FindVertex(name) == null)
                 VertexEdges.Add(new GraphVertex(name), new List<GraphEdge>());
             else
-                Console.WriteLine("Вершина с таким именем уже существует! Новая вершина не была создана.");
+                Console.WriteLine($"Вершина с именем |{name}| уже существует! Новая вершина не была создана.");
+        }
+
+        public void AddVertices(params string[] vertices)
+        {
+            foreach (var vertex in vertices)
+            {
+                AddVertex(vertex);
+            }
         }
 
         public void RemoveVertex(string name)
@@ -140,7 +148,7 @@ namespace Graphs.Graphs
         }
 
 
-        public void AddEdgeDict(string name_of_vertex_1, string name_of_vertex_2, bool is_oriented = false)
+        public void AddEdgeDict(string name_of_vertex_1, string name_of_vertex_2, bool is_oriented = false, int weight = 0)
         {
             if (FindVertex(name_of_vertex_1) != null && FindVertex(name_of_vertex_2) != null)
             {
@@ -151,8 +159,8 @@ namespace Graphs.Graphs
                             VertexEdges[FindVertex(name_of_vertex_2)].Find(v => v.SecondVertex == FindVertex(name_of_vertex_1)) == null)
                     {
                         // Проводим ребро в две вершины, т.к. неориентированное ребро
-                        VertexEdges[FindVertex(name_of_vertex_1)].Add(new GraphEdge(FindVertex(name_of_vertex_2)));
-                        VertexEdges[FindVertex(name_of_vertex_2)].Add(new GraphEdge(FindVertex(name_of_vertex_1)));
+                        VertexEdges[FindVertex(name_of_vertex_1)].Add(new GraphEdge(FindVertex(name_of_vertex_2), weight: weight));
+                        VertexEdges[FindVertex(name_of_vertex_2)].Add(new GraphEdge(FindVertex(name_of_vertex_1), weight: weight));
                     }
                     else
                     {
@@ -161,7 +169,7 @@ namespace Graphs.Graphs
                 }
                 else
                 {
-                    VertexEdges[FindVertex(name_of_vertex_1)].Add(new GraphEdge(FindVertex(name_of_vertex_2), is_oriented: true));
+                    VertexEdges[FindVertex(name_of_vertex_1)].Add(new GraphEdge(FindVertex(name_of_vertex_2), is_oriented: true, weight: weight));
                 }
             }
             else
@@ -238,7 +246,7 @@ namespace Graphs.Graphs
                 Console.Write(vertexAndEdges.Key.Name + " : ");
                 foreach (var edge in vertexAndEdges.Value)
                 {
-                    Console.Write(edge.SecondVertex.Name + ", ");
+                    Console.Write(edge.SecondVertex.Name + "{" + edge.EdgeWeight + "}" + ", ");
                 }
                 Console.WriteLine();
             }
@@ -282,7 +290,7 @@ namespace Graphs.Graphs
                 {
                     // Вывод всех вершин
                     //Console.Write(IsExistEdgeFromVertexUInVertexV(pair.Key.Name, value.SecondVertex.Name));
-                    if(IsExistEdgeFromVertexUInVertexV(pair.Key.Name, value.SecondVertex.Name) == true)
+                    if (IsExistEdgeFromVertexUInVertexV(pair.Key.Name, value.SecondVertex.Name) == true)
                     {
                         Console.WriteLine("Вершина, в которую есть дуга из {0}, но нет из {1} -- {0}", pair.Key.Name, value.SecondVertex.Name);
                     }
@@ -362,23 +370,24 @@ namespace Graphs.Graphs
             Graph addGraph = new Graph(this);
 
             // Очищаем список рёбер
-            foreach (var vertex in addGraph.VertexEdges.Keys) {
+            foreach (var vertex in addGraph.VertexEdges.Keys)
+            {
                 addGraph.VertexEdges[vertex].Clear();
             }
 
             // Для каждой вершины строим дополненный рёбра
-            foreach(var current_vertex in addGraph.VertexEdges.Keys) 
+            foreach (var current_vertex in addGraph.VertexEdges.Keys)
             {
                 // Для этого создадим список вершин, которые нужно исключить
                 List<GraphVertex> VertexesFromCur = new List<GraphVertex>();
-                foreach(var EdgeFromCur in VertexEdges[current_vertex])
+                foreach (var EdgeFromCur in VertexEdges[current_vertex])
                 {
                     VertexesFromCur.Add(EdgeFromCur.SecondVertex);
                 }
 
-                foreach(var vertex_from_edges in addGraph.VertexEdges.Keys)
+                foreach (var vertex_from_edges in addGraph.VertexEdges.Keys)
                 {
-                    if(VertexesFromCur.Contains(vertex_from_edges) == false && vertex_from_edges != current_vertex)
+                    if (VertexesFromCur.Contains(vertex_from_edges) == false && vertex_from_edges != current_vertex)
                     {
                         addGraph.AddEdgeDict(current_vertex.Name, vertex_from_edges.Name);
                     }
@@ -389,17 +398,17 @@ namespace Graphs.Graphs
         }
         #endregion
 
-        #region Task_II_1
+        #region Tasks_II_9_&_27
         // 9.Найти путь, соединяющий вершины u и v и не проходящий через заданное подмножество вершин V.
 
         // Словарь marks для запоминания мест, где мы были
         // GraphVertex - вершина, bool - были ли мы здесь или нет
-        public Dictionary<GraphVertex, bool> marks = new Dictionary<GraphVertex, bool>();
+        private Dictionary<GraphVertex, bool> marks = new Dictionary<GraphVertex, bool>();
 
         // Словарь toGetPath для восстановления пути
         // Первый GraphVertex - вершина куда пришли
         // Второй GraphVertex - вершина откуда пришли
-        public Dictionary<GraphVertex, GraphVertex> toGetPath = new Dictionary<GraphVertex, GraphVertex>();
+        private Dictionary<GraphVertex, GraphVertex> toGetPath = new Dictionary<GraphVertex, GraphVertex>();
 
         private GraphVertex FinishVertex;
         private GraphVertex StartVertex;
@@ -407,7 +416,7 @@ namespace Graphs.Graphs
         public string StartDFS(string startVertex, string endVertex)
         {
             marks.Clear();
-            foreach(var vertex in VertexEdges.Keys)
+            foreach (var vertex in VertexEdges.Keys)
             {
                 marks.Add(vertex, false);
             }
@@ -432,26 +441,26 @@ namespace Graphs.Graphs
 
         private void DFS(GraphVertex vertex, GraphVertex from, ref string result)
         {
-            if(marks[vertex] == true)
+            if (marks[vertex] == true)
             {
-                return ;
+                return;
             }
             marks[vertex] = true;
             toGetPath[vertex] = from;
 
-            if(vertex == FinishVertex)
+            if (vertex == FinishVertex)
             {
                 result = "Path was found!";
-                return ;
+                return;
             }
 
-            foreach(var vertex_out in VertexEdges[vertex])
+            foreach (var vertex_out in VertexEdges[vertex])
             {
-                DFS(vertex_out.SecondVertex, vertex , ref result);
+                DFS(vertex_out.SecondVertex, vertex, ref result);
             }
         }
 
-        public List<GraphVertex> get_path()
+        private List<GraphVertex> get_path()
         {
             List<GraphVertex> path = new List<GraphVertex>();
 
@@ -463,6 +472,17 @@ namespace Graphs.Graphs
                 else
                     continue;
 
+            return path;
+        }
+
+        public string GetPath()
+        {
+            // Да, лучше использовать StringBuilder, но это фактически разовая операция
+            string path = "";
+            foreach (var vertex in get_path())
+            {
+                path += vertex.Name + " ";
+            }
             return path;
         }
 
@@ -479,19 +499,19 @@ namespace Graphs.Graphs
 
             Graph graphWithoutSubSet = new Graph(this);
 
-            foreach(var item in subSet)
+            foreach (var item in subSet)
             {
                 graphWithoutSubSet.RemoveVertex((string)item);
             }
 
             graphWithoutSubSet.StartDFS("V4", "V5");
-            
+
             return graphWithoutSubSet.get_path().Select(x => x.Name).ToList();
         }
 
         public void StartBFSForTask_II_27()
         {
-            foreach(var startVertex in VertexEdges.Keys)
+            foreach (var startVertex in VertexEdges.Keys)
             {
                 Console.WriteLine("--------------");
                 Console.WriteLine("--------------");
@@ -499,7 +519,7 @@ namespace Graphs.Graphs
                 Console.WriteLine("--------------");
 
                 BFS_To_Other(startVertex.Name);
-                
+
             }
         }
 
@@ -561,7 +581,8 @@ namespace Graphs.Graphs
             //    Console.WriteLine("Error! Path was not found!");
             //}
 
-            foreach (var vertexEnd in VertexEdges.Keys) {
+            foreach (var vertexEnd in VertexEdges.Keys)
+            {
                 List<GraphVertex> path_current = new List<GraphVertex>();
 
                 var vertex_tmp = vertexEnd;
@@ -657,6 +678,56 @@ namespace Graphs.Graphs
             Console.WriteLine(counts_of_linkers);
         }
         #endregion
+
+        #endregion
+
+        #region Task_III_Прим
+        // Дан взвешенный неориентированный граф из N вершин и M ребер. 
+        // Требуется найти в нем каркас минимального веса.
+        // Алгоритм Прима
+
+        // Остов - граф из тех же вершин, но не без зацикливания
+
+        public void Task_III_Prim()
+        {
+            Graph ostovGraph = new Graph();
+
+            ostovGraph.AddVertex("V1");
+
+            //List<GraphVertex> allVerticies = VertexEdges.Keys.ToList();
+
+            //List<GraphVertex> verticesOfOstov = new List<GraphVertex>();
+
+            //verticesOfOstov.Add(FindVertex("V6"));
+
+            while (ostovGraph.VertexEdges.Count != VertexEdges.Count)
+            {
+                int min_weight = int.MaxValue;
+
+                GraphVertex minVertex = null;
+
+                foreach (var Vertex in VertexEdges.Keys)
+                {
+
+                    foreach (var edge in VertexEdges[Vertex])
+                    {
+                        if (edge.EdgeWeight < min_weight)
+                        {
+                            min_weight = edge.EdgeWeight;
+                            minVertex = edge.SecondVertex;
+                        }
+                    }
+
+                    if (minVertex != null)
+                    {
+                        ostovGraph.AddVertex(minVertex.Name);
+                        ostovGraph.AddEdgeDict(minVertex.Name, Vertex.Name, weight: min_weight);
+                    }
+
+                    Console.WriteLine($"Min = {min_weight}, Vert = {minVertex.Name}");
+                }
+            }
+        }
 
         #endregion
 

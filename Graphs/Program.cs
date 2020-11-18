@@ -29,11 +29,49 @@ namespace Graphs
 
             //Task_II_9();
 
-            Task_II_27();
+            //Task_II_27();
 
-            //Task_II_V();
+            //Task_II_Victoria();
+
+            Task_III_Prim();
 
             Console.WriteLine();
+        }
+
+        static void Task_III_Prim()
+        {
+            Graph graph = new Graph();
+
+            graph.AddVertices("V1", "V2", "V3", "V4", "V5");
+            
+            graph.PrintVertices();
+            graph.PrintListEdges();
+
+            graph.AddEdgeDict("V1", "V2", weight: 15);
+            graph.AddEdgeDict("V3", "V2", weight: 75);
+            graph.AddEdgeDict("V4", "V1", weight: 85);
+
+            graph.AddEdgeDict("V5", "V3", weight: 25);
+
+
+            graph.AddVertices("V6", "V7", "V8");
+
+
+            graph.AddEdgeDict("V4", "V6", weight: 35);
+            graph.AddEdgeDict("V6", "V1", weight: 65);
+
+            graph.AddEdgeDict("V4", "V7", weight: 45);
+            graph.AddEdgeDict("V7", "V3", weight: 20);
+
+            graph.AddEdgeDict("V5", "V8", weight: 33);
+            graph.AddEdgeDict("V8", "V1", weight: 44);
+
+
+            graph.PrintVertices();
+            graph.PrintListEdges();
+
+            graph.Task_III_Prim();
+
         }
 
         static void Task_II_27()
