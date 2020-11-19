@@ -34,6 +34,204 @@ namespace Graphs.Graphs
         public Dictionary<GraphVertex, List<GraphEdge>> VertexEdges { get; }
         // Список классов граней в виде --  Вершина - Список граней  --  Класс граней хранит в себе доп инфу по сути.
 
+        int[,] matrix;
+
+        public void ToMatrix()
+        {
+            matrix = new int[VertexEdges.Count, VertexEdges.Count];
+
+            for (int i = 0; i < matrix.GetLength(0); ++i)
+            {
+                //List<int> lst = VertexEdges[FindVertex("V" + i)].Select(x => x.EdgeWeight).ToList();
+
+                for (int j = 0; j < matrix.GetLength(1); ++j)
+                {
+
+                    matrix[i, j] = 0;
+
+                }
+            }
+
+            foreach (var pair in VertexEdges)
+            {
+                foreach (var item in pair.Value)
+                {
+                    matrix[int.Parse(item.SecondVertex.Name.Remove(0, 1)), int.Parse(pair.Key.Name.Remove(0, 1))] = item.EdgeWeight;
+                }
+            }
+        }
+
+        public void PrintMatrix()
+        {
+            ToMatrix();
+
+            for (int i = 0; i < matrix.GetLength(0); ++i)
+            {
+                for (int j = 0; j < matrix.GetLength(1); ++j)
+                {
+                    Console.Write(matrix[i, j] + " ");
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        public void Doklad()
+        {
+            ToMatrix();
+
+            List<Tuple<int, int>> _arcs = new List<Tuple<int, int>>();
+            List<int> _solution = new List<int>();
+
+            _solution.Add(0);
+
+            //while (_arcs.Count != 0)
+            //{
+            //    var iter = _arcs.First();
+            //    while (iter != _arcs.Last())
+            //    {
+            //        // если есть ребро, исходящее из последней вершины
+            //        // добавление в решение смежной вершины
+            //        // и удаление этого ребра из списка
+            //        if (iter->first == _solution.back())
+            //        {
+            //            _solution.push_back(iter->second);
+            //            iter = _arcs.erase(iter);
+            //        }
+            //        else
+            //            ++iter;
+            //    }
+            //}
+        }
+
+        public void Doklad_2()
+        {
+            ToMatrix();
+
+            
+            var start_time = DateTime.Now;
+
+            int x = Program.Reduce(matrix, 0, 9999, 9999);
+            UserClass user_obj = new UserClass(VertexEdges.Count)
+            {
+                node = 0,
+                cost = x,
+                matrix = matrix,
+                other_nodes = new int[VertexEdges.Count - 1],
+                city_left_to_expand = VertexEdges.Count - 1
+            };
+
+
+            user_obj.inStack.Push(0);
+
+
+            for (int i = 0; i < VertexEdges.Count - 1; i++)
+            {
+                user_obj.other_nodes[i] = i + 1;
+            }
+
+            // variable for keeping track of the number of expanded nodes
+            int count = 0;
+
+            // Stack DS for maintaining the nodes in the tree
+            Stack<UserClass> s = new Stack<UserClass>();
+
+            // Pushing the root onto the stack
+            s.Push(user_obj);
+
+            //Temporary variable for storing the best solution found so far
+            UserClass temp_best_solution = new UserClass(VertexEdges.Count);
+            int current_best_cost = 100000;
+
+            Program.Output(user_obj);
+
+            // Stack iterations including backtracking
+            // Starting the Tree Traversal - Traverses until stack gets empty i.e, all nodes have been expanded
+            while (s.Count != 0)
+            {
+                // Variable Initialization
+                List<UserClass> mainList = new List<UserClass>();
+
+                UserClass hell = new UserClass(VertexEdges.Count);
+                hell = s.Pop();
+                //Expand Stack only if the node is not a leaf node and if its cost is better than the best so far
+                if (hell.city_left_to_expand == 0)
+                {
+                    //Comparing the cost of this node to the best and updating if necessary
+                    if (hell.cost <= current_best_cost)
+                    {
+                        temp_best_solution = hell;
+                        current_best_cost = temp_best_solution.cost;
+                    }
+                }
+                else if (hell.city_left_to_expand != 0)
+                {
+                    if (hell.cost <= current_best_cost)
+                    {
+                        count++;
+                        // Expanding the latest node popped from stack
+                        Program.Expand(mainList, hell);
+
+                        //Determing the order in which the expanded nodes should be pushed onto the stack
+                        int[] arrow = new int[mainList.Count()];
+                        for (int pi = 0; pi < mainList.Count(); pi++)
+                        {
+                            UserClass help = mainList.ElementAt(pi);
+                            arrow[pi] = help.cost;
+                        }
+                        // Sorting nodes in decreasing order based on their costs
+                        int[] tempppp = Program.DecreasingSort(arrow);
+                        for (int pi = 0; pi < tempppp.Length; pi++)
+                        {
+                            // Pushing the node objects into stack in decreasing order
+                            s.Push(mainList.ElementAt(tempppp[pi]));
+
+                        }
+                    }
+                }
+            }
+            // Calculating Stop time for Run Time
+            var stop_time = DateTime.Now;
+            var run_time = stop_time - start_time;
+
+            // Checking if a solution is found
+            if (temp_best_solution.cost < 9000)
+            {
+                // Printing Tour Cost
+                Console.WriteLine();
+                Console.WriteLine(current_best_cost);
+                Console.WriteLine();
+
+                // Printing Optimal Tour
+                Console.Write("[ ");
+                for (int st_i = 0; st_i < VertexEdges.Count; st_i++)
+                {
+                    Console.Write(temp_best_solution.inStack.ElementAt(st_i));
+
+                    Console.Write(", ");
+                }
+                Console.Write("0 ");
+                Console.Write("]");
+                Console.WriteLine();
+                Console.WriteLine();
+
+                // Printing Running Time
+                Console.WriteLine(run_time);
+                Console.WriteLine();
+
+                //The number of nodes expanded in the algorithm
+                Console.WriteLine(count);
+                Console.WriteLine();
+            }
+            else
+            {
+                Console.WriteLine("\nNo Solution.\n");
+                // Printing Running Time
+                Console.WriteLine(run_time);
+                Console.WriteLine();
+            }
+        }
+
         // Пустой граф
         public Graph()
         {

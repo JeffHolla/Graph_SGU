@@ -75,6 +75,7 @@
     <Compile Include="Graph.cs" />
     <Compile Include="GraphEdge.cs" />
     <Compile Include="GraphVertex.cs" />
+    <Compile Include="lobject.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

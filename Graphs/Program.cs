@@ -33,9 +33,42 @@ namespace Graphs
 
             //Task_II_Victoria();
 
-            Task_III_Prim();
+            //Task_III_Prim();
+
+            Task_For_Doklad();
 
             Console.WriteLine();
+        }
+
+        static void Task_For_Doklad()
+        {
+            //Алгоритм Литтла
+            Graph graph = new Graph();
+
+            graph.AddVertices("V0", "V1", "V2", "V3", "V4", "V5", "V6");
+
+            graph.AddEdgeDict("V0", "V1", weight: 5);
+            graph.AddEdgeDict("V0", "V4", weight: 7);
+            graph.AddEdgeDict("V0", "V5", weight: 10);
+
+            graph.AddEdgeDict("V1", "V2", weight: 4);
+            graph.AddEdgeDict("V1", "V3", weight: 15);
+            graph.AddEdgeDict("V1", "V4", weight: 3);
+
+            graph.AddEdgeDict("V2", "V3", weight: 8);
+
+            graph.AddEdgeDict("V5", "V4", weight: 6);
+            graph.AddEdgeDict("V5", "V2", weight: 9);
+
+            graph.AddEdgeDict("V6", "V2", weight: 9);
+            graph.AddEdgeDict("V6", "V3", weight: 10);
+            graph.AddEdgeDict("V6", "V5", weight: 8);
+
+
+            graph.PrintListEdges();
+
+            graph.PrintMatrix();
+            graph.Doklad_2();
         }
 
         static void Task_III_Prim()
