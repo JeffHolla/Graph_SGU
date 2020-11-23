@@ -13,12 +13,6 @@ namespace Graphs
         static void Main()
         {
             //FileGraph();
-
-            //Console.WriteLine();
-            //Console.WriteLine();
-            //Console.WriteLine();
-            //Console.WriteLine();
-
             //ConsoleGraph();
 
             Task_For_Doklad();
@@ -31,7 +25,7 @@ namespace Graphs
             //Алгоритм Литтла
             Graph graph = new Graph();
 
-            graph.AddVertices("V0", "V1", "V2", "V3", "V4");
+            //graph.AddVertices("V0", "V1", "V2", "V3", "V4");
 
             //graph.AddEdgeDict("V0", "V1", weight: 5);
             //graph.AddEdgeDict("V0", "V4", weight: 7);
@@ -51,40 +45,60 @@ namespace Graphs
             //graph.AddEdgeDict("V6", "V5", weight: 8);
 
 
-            graph.AddEdgeDict("V0", "V1", true, weight: 5);
-            graph.AddEdgeDict("V0", "V2", true, weight: 12);
-            graph.AddEdgeDict("V0", "V3", true, weight: 11);
-            graph.AddEdgeDict("V0", "V4", true, weight: 5);
+            //graph.AddEdgeDict("V0", "V1", true, weight: 5);
+            //graph.AddEdgeDict("V0", "V2", true, weight: 12);
+            //graph.AddEdgeDict("V0", "V3", true, weight: 11);
+            //graph.AddEdgeDict("V0", "V4", true, weight: 5);
 
 
-            graph.AddEdgeDict("V1", "V0", true, weight: 20);
-            graph.AddEdgeDict("V1", "V2", true, weight: 18);
-            graph.AddEdgeDict("V1", "V3", true, weight: 17);
-            graph.AddEdgeDict("V1", "V4", true, weight: 5);
+            //graph.AddEdgeDict("V1", "V0", true, weight: 20);
+            //graph.AddEdgeDict("V1", "V2", true, weight: 18);
+            //graph.AddEdgeDict("V1", "V3", true, weight: 17);
+            //graph.AddEdgeDict("V1", "V4", true, weight: 5);
 
 
-            graph.AddEdgeDict("V2", "V0", true, weight: 18);
-            graph.AddEdgeDict("V2", "V1", true, weight: 14);
-            graph.AddEdgeDict("V2", "V3", true, weight: 11);
-            graph.AddEdgeDict("V2", "V4", true, weight: 5);
+            //graph.AddEdgeDict("V2", "V0", true, weight: 18);
+            //graph.AddEdgeDict("V2", "V1", true, weight: 14);
+            //graph.AddEdgeDict("V2", "V3", true, weight: 11);
+            //graph.AddEdgeDict("V2", "V4", true, weight: 5);
 
 
-            graph.AddEdgeDict("V3", "V0", true, weight: 12);
-            graph.AddEdgeDict("V3", "V1", true, weight: 7);
-            graph.AddEdgeDict("V3", "V2", true, weight: 6);
-            graph.AddEdgeDict("V3", "V4", true, weight: 5);
+            //graph.AddEdgeDict("V3", "V0", true, weight: 12);
+            //graph.AddEdgeDict("V3", "V1", true, weight: 7);
+            //graph.AddEdgeDict("V3", "V2", true, weight: 6);
+            //graph.AddEdgeDict("V3", "V4", true, weight: 5);
 
 
-            graph.AddEdgeDict("V4", "V0", true, weight: 8);
-            graph.AddEdgeDict("V4", "V1", true, weight: 11);
-            graph.AddEdgeDict("V4", "V2", true, weight: 11);
-            graph.AddEdgeDict("V4", "V3", true, weight: 12);
+            //graph.AddEdgeDict("V4", "V0", true, weight: 8);
+            //graph.AddEdgeDict("V4", "V1", true, weight: 11);
+            //graph.AddEdgeDict("V4", "V2", true, weight: 11);
+            //graph.AddEdgeDict("V4", "V3", true, weight: 12);
 
+            GraphGenerator(graph, 50);
 
-            graph.PrintListEdges();
+            //graph.PrintListEdges();
+            //graph.PrintMatrix();
 
-            graph.PrintMatrix();
-            graph.Doklad_2();
+            graph.Doklad();
+        }
+
+        static void GraphGenerator(Graph graph, int countOfNodes)
+        {
+            for (int i = 0; i < countOfNodes; ++i)
+            {
+                graph.AddVertex("V" + i);
+            }
+
+            Random rnd = new Random(1);
+
+            for (int i = 0; i < countOfNodes; ++i)
+            {
+                for (int j = 0; j < countOfNodes; ++j)
+                {
+                    if (i != j)
+                        graph.AddEdgeDict("V" + i, "V" + j, true, rnd.Next(0,50));
+                }
+            }
         }
 
         static void FileGraph()
