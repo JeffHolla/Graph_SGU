@@ -206,7 +206,7 @@ namespace Graphs.Graphs
                 Console.WriteLine();
 
                 // Количество развёрнутых узлов в алгоритме
-                Console.WriteLine(count);
+                Console.WriteLine("Nodes : " + count);
                 Console.WriteLine();
             }
             else
@@ -390,7 +390,83 @@ namespace Graphs.Graphs
         Input - 2D-массив, подлежащий уменьшению; стоимость предыдущего шага; обрабатываемая строка; обрабатываемый столбец
         Return - Стоимость уменьшения
         */
-        public int ReduceMatrix(int[,] array, int cost, int row, int column)
+        //public int ReduceMatrix(int[,] array, int cost, int row, int column)
+        //{
+        //    // Переменные, чтобы хранить строки и столбца для уменьшения
+        //    int[] array_to_reduce = new int[sizeOfAll];
+        //    int[] reduced_array = new int[sizeOfAll];
+
+        //    // Переменная, чтобы хранить обновлённую цену
+        //    int new_cost = cost;
+
+        //    // Цикл для уменьшения строк
+        //    for (int i = 0; i < sizeOfAll; i++)
+        //    {
+        //        // Если строка совпадает с текущим узлом - не уменьшаем
+        //        if (i == row) continue;
+
+        //        // Если строка не текущий узел, то пытаемся уменьшить
+        //        for (int j = 0; j < sizeOfAll; j++)
+        //        {
+        //            // Извлекаем строку, которую нужно уменьшить
+        //            array_to_reduce[j] = array[i, j];
+        //        }
+
+        //        // Проверяем может ли текущая строка быть уменьшена
+        //        if (Minimum(array_to_reduce) != 0)
+        //        {
+        //            // Обновляем новую стоимость
+        //            new_cost = Minimum(array_to_reduce) + new_cost;
+
+        //            // Уменьшаем значения в строке (строку)
+        //            reduced_array = Minimize(array_to_reduce, Minimum(array_to_reduce));
+
+        //            // Возвращаем уменьшенную строку в исходный массив
+        //            for (int k = 0; k < sizeOfAll; k++)
+        //            {
+        //                array[i, k] = reduced_array[k];
+        //            }
+        //        }
+        //    }
+
+        //    // Цикл для уменьшения столбцов
+        //    for (int i = 0; i < sizeOfAll; i++)
+        //    {
+        //        // Если столбец совпадает с текущим узлом, то пропускаем одну итерацию
+        //        if (i == column) continue;
+
+        //        // Если столбец не совпадает с текущим узлом, то уменьшаем
+        //        for (int j = 0; j < sizeOfAll; j++)
+        //        {
+        //            // Извлекаем столбец, который нужно уменьшить
+        //            array_to_reduce[j] = array[j, i];
+        //        }
+
+        //        // Проверяем может ли текущий столбец быть уменьшен
+        //        if (Minimum(array_to_reduce) != 0)
+        //        {
+
+        //            // Обновляем текущую цену
+        //            new_cost = Minimum(array_to_reduce) + new_cost;
+
+
+        //            // Уменьшаем колонку
+        //            reduced_array = Minimize(array_to_reduce, Minimum(array_to_reduce));
+
+
+        //            // Возвращаем уменьшенный столбец в исходный массив
+        //            for (int k = 0; k < sizeOfAll; k++)
+        //            {
+        //                array[k, i] = reduced_array[k];
+        //            }
+        //        }
+        //    }
+
+        //    // Уменьшение выполнено, возвращаем новую цену
+        //    return new_cost;
+        //}
+
+            public int ReduceMatrix(int[,] array, int cost, int row, int column)
         {
             // Переменные, чтобы хранить строки и столбца для уменьшения
             int[] array_to_reduce = new int[sizeOfAll];

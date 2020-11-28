@@ -74,14 +74,52 @@ namespace Graphs
             //graph.AddEdgeDict("V4", "V2", true, weight: 11);
             //graph.AddEdgeDict("V4", "V3", true, weight: 12);
 
-            GraphGenerator(graph, 50);
+            // Генератор случайных ориентированных графов для переданного
+            //GraphGenerator(graph, 50);
 
-            //graph.PrintListEdges();
-            //graph.PrintMatrix();
+            GraphForDoklad(graph);
+
+            graph.PrintListEdges();
+            graph.PrintMatrix();
 
             graph.Doklad();
         }
 
+        static void GraphForDoklad(Graph graph)
+        {
+            graph.AddVertices("V0", "V1", "V2", "V3", "V4");
+
+            graph.AddEdgeDict("V0", "V1", true, weight: 10);
+            graph.AddEdgeDict("V0", "V2", true, weight: 4);
+            graph.AddEdgeDict("V0", "V3", true, weight: 6);
+            graph.AddEdgeDict("V0", "V4", true, weight: 24);
+
+
+            graph.AddEdgeDict("V1", "V0", true, weight: 12);
+            graph.AddEdgeDict("V1", "V2", true, weight: 7);
+            graph.AddEdgeDict("V1", "V3", true, weight: 13);
+            graph.AddEdgeDict("V1", "V4", true, weight: 28);
+
+
+            graph.AddEdgeDict("V2", "V0", true, weight: 6);
+            graph.AddEdgeDict("V2", "V1", true, weight: 7);
+            graph.AddEdgeDict("V2", "V3", true, weight: 11);
+            graph.AddEdgeDict("V2", "V4", true, weight: 28);
+
+
+            graph.AddEdgeDict("V3", "V0", true, weight: 6);
+            graph.AddEdgeDict("V3", "V1", true, weight: 13);
+            graph.AddEdgeDict("V3", "V2", true, weight: 11);
+            graph.AddEdgeDict("V3", "V4", true, weight: 21);
+
+
+            graph.AddEdgeDict("V4", "V0", true, weight: 21);
+            graph.AddEdgeDict("V4", "V1", true, weight: 28);
+            graph.AddEdgeDict("V4", "V2", true, weight: 28);
+            graph.AddEdgeDict("V4", "V3", true, weight: 21);
+        }
+
+        // Генератор случайных ориентированных графов для переданного
         static void GraphGenerator(Graph graph, int countOfNodes)
         {
             for (int i = 0; i < countOfNodes; ++i)
