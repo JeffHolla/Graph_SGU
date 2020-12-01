@@ -31,8 +31,8 @@ namespace Graphs.Graphs
     /// Граф
     public class Graph // Граф имеет возможность быть смешанным.
     {
-        public Dictionary<GraphVertex, List<GraphEdge>> VertexEdges { get; }
         // Список классов граней в виде --  Вершина - Список граней  --  Класс граней хранит в себе доп инфу по сути.
+        public Dictionary<GraphVertex, List<GraphEdge>> VertexEdges { get; }
 
         // Пустой граф
         public Graph()
@@ -239,6 +239,26 @@ namespace Graphs.Graphs
 
 
 
+        // Работает только при последовательном ходе вершин, т.е. при V0, V1, ..., Vn к примеру.
+        // В вызове указывается сдвиг вершин, т.е. кол-во вершин до нулевой(V0)
+        public void PrintMatrix(int shiftOfVertices)
+        {
+            int[,] matrix = ToMatrix(shiftOfVertices);
+
+            for (int i = 0; i < matrix.GetLength(0); ++i)
+            {
+                for (int j = 0; j < matrix.GetLength(1); ++j)
+                {
+                    if (i != j)
+                        Console.Write("{0, 3} ", matrix[i, j]);
+                    else
+                        Console.Write("inf ");
+                }
+
+                Console.WriteLine();
+            }
+        }
+
         public void PrintListEdges()
         {
             foreach (var vertexAndEdges in VertexEdges)
@@ -273,6 +293,33 @@ namespace Graphs.Graphs
             }
 
             return null;
+        }
+
+        private int[,] ToMatrix(int shiftOfVertices)
+        {
+            int[,] matrix = new int[VertexEdges.Count, VertexEdges.Count];
+
+            for (int i = 0; i < matrix.GetLength(0); ++i)
+            {
+                for (int j = 0; j < matrix.GetLength(1); ++j)
+                {
+                    if (i != j)
+                        matrix[i, j] = 0;
+                    else
+                        matrix[i, j] = int.MaxValue;
+                }
+            }
+
+            foreach (var pair in VertexEdges)
+            {
+                foreach (var item in pair.Value)
+                {
+                    matrix[int.Parse(item.SecondVertex.Name.Remove(0, 1)) - shiftOfVertices,
+                        int.Parse(pair.Key.Name.Remove(0, 1)) - shiftOfVertices] = item.EdgeWeight;
+                }
+            }
+
+            return matrix;
         }
 
 
@@ -367,16 +414,16 @@ namespace Graphs.Graphs
         public Graph AddedGraph()
         {
             //Делаем копию графа
-            Graph addGraph = new Graph(this);
+            Graph addedGraph = new Graph(this);
 
             // Очищаем список рёбер
-            foreach (var vertex in addGraph.VertexEdges.Keys)
+            foreach (var vertex in addedGraph.VertexEdges.Keys)
             {
-                addGraph.VertexEdges[vertex].Clear();
+                addedGraph.VertexEdges[vertex].Clear();
             }
 
             // Для каждой вершины строим дополненный рёбра
-            foreach (var current_vertex in addGraph.VertexEdges.Keys)
+            foreach (var current_vertex in addedGraph.VertexEdges.Keys)
             {
                 // Для этого создадим список вершин, которые нужно исключить
                 List<GraphVertex> VertexesFromCur = new List<GraphVertex>();
@@ -385,16 +432,16 @@ namespace Graphs.Graphs
                     VertexesFromCur.Add(EdgeFromCur.SecondVertex);
                 }
 
-                foreach (var vertex_from_edges in addGraph.VertexEdges.Keys)
+                foreach (var vertex_from_edges in addedGraph.VertexEdges.Keys)
                 {
                     if (VertexesFromCur.Contains(vertex_from_edges) == false && vertex_from_edges != current_vertex)
                     {
-                        addGraph.AddEdgeDict(current_vertex.Name, vertex_from_edges.Name);
+                        addedGraph.AddEdgeDict(current_vertex.Name, vertex_from_edges.Name);
                     }
                 }
             }
 
-            return addGraph;
+            return addedGraph;
         }
         #endregion
 
@@ -688,6 +735,8 @@ namespace Graphs.Graphs
 
         // Остов - граф из тех же вершин, но не без зацикливания
 
+        private Dictionary<GraphVertex, bool> marksPrim = new Dictionary<GraphVertex, bool>();
+
         public void Task_III_Prim()
         {
             Graph ostovGraph = new Graph();
@@ -728,6 +777,185 @@ namespace Graphs.Graphs
                 }
             }
         }
+
+
+        public void Task_III_Prim_NewTry()
+        {
+            Graph ostovGraph = new Graph();
+
+            ostovGraph.AddVertex("V1");
+
+            Graph originalGraphCopy = new Graph(this);
+
+            int min_weight = int.MaxValue;
+
+            //foreach(var edge in originalGraphCopy.VertexEdges[FindVertex("V1")])
+            //{
+            //    if(edge.EdgeWeight < min_weight)
+            //    {
+            //        min_weight = edge.EdgeWeight;
+            //    }   
+            //}
+
+            //foreach (var edge in originalGraphCopy.VertexEdges[FindVertex("V1")])
+            //{
+            //    if(edge.EdgeWeight == min_weight)
+            //    {
+            //        ostovGraph.AddVertex(edge.SecondVertex.Name);
+            //        ostovGraph.AddEdgeDict("V1", edge.SecondVertex.Name, weight : edge.EdgeWeight);
+            //    }
+            //}
+
+            marksPrim.Clear();
+            foreach (var vertex in VertexEdges.Keys)
+            {
+                marksPrim.Add(vertex, false);
+            }
+
+            Dictionary<GraphVertex, int> min_e = new Dictionary<GraphVertex, int>();
+            foreach (var vertex in VertexEdges.Keys)
+            {
+                min_e.Add(vertex, int.MaxValue);
+            }
+
+            Dictionary<GraphVertex, GraphVertex> sel_e = new Dictionary<GraphVertex, GraphVertex>();
+            foreach (var vertex in VertexEdges.Keys)
+            {
+                sel_e.Add(vertex, null);
+            }
+
+            foreach (var vertex_1 in VertexEdges.Keys)
+            {
+                GraphVertex v = null;
+                foreach (var vertex_2 in VertexEdges.Keys)
+                {
+                    if (marksPrim[vertex_2] == false && (v == null || min_e[vertex_2] < min_e[v]))
+                    {
+                        v = vertex_2;
+                    }
+                }
+
+                if (min_e[v] == int.MaxValue)
+                {
+                    Console.WriteLine("Не возможно построить остов");
+                    break;
+                }
+
+                marksPrim[v] = true;
+                if (sel_e[v] != null)
+                {
+                    Console.WriteLine(v + " " + sel_e[v]);
+                }
+
+                foreach (var vertex_to in VertexEdges.Keys)
+                    if (VertexEdges[v].Find(vert => vert.SecondVertex.Name == vertex_to.Name).EdgeWeight < min_e[vertex_to])
+                    {
+                        min_e[vertex_to] = VertexEdges[v].Find(vert => vert.SecondVertex.Name == vertex_to.Name).EdgeWeight;
+                        sel_e[vertex_to] = v;
+                    }
+            }
+
+            //ostovGraph.PrintVertices();
+            // ostovGraph.PrintListEdges();
+            //ostovGraph.PrintMatrix(1);
+        }
+
+        public void PrimStartRandom()
+        {
+            Random random = new Random();
+
+            // Выбираем случайную вершину
+            GraphVertex randomStartVertex = VertexEdges.Keys.ToList()[random.Next(VertexEdges.Keys.Count)];
+        }
+
+        public void PrimStart(string vertex)
+        {
+            Task_III_Prim_AnotherNewTry(FindVertex(vertex));
+        }
+
+        private void Task_III_Prim_AnotherNewTry(GraphVertex choosenVertex)
+        {
+            Graph ostovGraph = new Graph();
+            
+            // Добавляем случайную вершину
+            ostovGraph.AddVertex(choosenVertex.Name);
+
+            // Список для хранения пройденных вершин
+            List<GraphVertex> ostovGraphVertices = new List<GraphVertex>();
+            // Сразу добавляем пройденную, т.е. стартовую вершину в список
+            ostovGraphVertices.Add(choosenVertex);
+
+            // Создаём копию оригинального графа.
+            // Из него мы будем удалять пути, которые появляются в оставном графе
+            // Ориентируемся также по нему(второй цикл)
+            Graph originalGraphCopy = new Graph(this);
+
+            // Пока все вершины из оригинального графа не будут записаны в остовной
+            while (ostovGraphVertices.Count != VertexEdges.Keys.Count)
+            {
+                // Ищем минимальный вес от тех вершин, до которых добрались, т.е. те, что записаны в ostovGraphVertices
+                int min_weight = int.MaxValue;
+                // Для каждой вершины из списка
+                foreach (var vertex in ostovGraphVertices)
+                {
+                    // Ищем минимальный вес ребра, которые исходят из доступных вершин
+                    foreach (var edge in originalGraphCopy.VertexEdges[vertex])
+                    {
+                        if (edge.EdgeWeight < min_weight)
+                        {
+                            min_weight = edge.EdgeWeight;
+                        }
+                    }
+                }
+
+                // По мере прохода по остовному графу мы будем удалять из вспомогательного графа рёбра, но т.к. это делается в массиве, то 
+                // перед проходом создадим копию вспомогательного графа и будем проходить по ней, удаляя рёбра из вспомогательного
+                // (можно вместо копии сделать список рёбер, которые нужно удалить, и удалить их после прохода по циклу, а проходить
+                // по оригинальному вспомогательному графу)
+                Graph copyOfCopy = new Graph(originalGraphCopy);
+
+                // Т.к. мы будем проводить рёбра только от тех вершин, которые есть в остовном графе, то мы
+                // Т.к. мы будем добавлять вершины в список вершин нашего оставного графа одновременно проходя по нему, а
+                // лист во время прохода мы изменять не можем, то создаём копию, в которую и будем добавлять
+                List<GraphVertex> copyOfGraphVertices = new List<GraphVertex>(ostovGraphVertices);
+                // Для каждой вершины из списка
+                foreach (var vertex in ostovGraphVertices)
+                {
+                    // Для каждого ребра
+                    foreach (var edge in copyOfCopy.VertexEdges[vertex])
+                    {
+                        // смотрим минимальный вес, и, если он совпадает с найденным минимальным весом, и
+                        if (edge.EdgeWeight == min_weight)
+                        {
+                            // такой вершины ещё нет в списке вершин, то
+                            if (ostovGraphVertices.Contains(edge.SecondVertex) == false)
+                            {
+                                // копию списка вершин мы добавляем вершину
+                                copyOfGraphVertices.Add(edge.SecondVertex);
+                                // добавляем вершину в остовной граф
+                                ostovGraph.AddVertex(edge.SecondVertex.Name);
+                                // и проводим ребро между вершинами 
+                                ostovGraph.AddEdgeDict(vertex.Name, edge.SecondVertex.Name, weight: edge.EdgeWeight);
+
+                                // в копии вспомогательного графа убираем такое ребро, чтобы не создать зацикленность по рёбрам
+                                originalGraphCopy.RemoveEdgeDict(vertex.Name, edge.SecondVertex.Name);
+                            }
+                        }
+                    }   
+                }
+                // Выводим список смежности оставного графа
+                ostovGraph.PrintListEdges();
+                Console.WriteLine();
+
+                // копируем список вершин остовного графа
+                ostovGraphVertices = copyOfGraphVertices;
+            }
+
+            // выводим матрицу
+            ostovGraph.PrintMatrix(1);
+        }
+
+
 
         #endregion
 

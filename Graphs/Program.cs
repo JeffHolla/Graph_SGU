@@ -70,8 +70,15 @@ namespace Graphs
             graph.PrintVertices();
             graph.PrintListEdges();
 
-            graph.Task_III_Prim();
+            // Работает только при последовательном ходе вершин, т.е. при V0, V1, ..., Vn к примеру.
+            // В вызове указывается сдвиг вершин, т.е. кол-во вершин до нулевой(V0)
+            graph.PrintMatrix(1);
 
+            Console.WriteLine("=======================================");
+            Console.WriteLine("=======================================");
+            
+            graph.PrimStart("V1");
+            //graph.PrimStartRandom();
         }
 
         static void Task_II_27()
