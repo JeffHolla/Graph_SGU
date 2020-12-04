@@ -734,132 +734,6 @@ namespace Graphs.Graphs
         // Алгоритм Прима
 
         // Остов - граф из тех же вершин, но не без зацикливания
-
-        private Dictionary<GraphVertex, bool> marksPrim = new Dictionary<GraphVertex, bool>();
-
-        public void Task_III_Prim()
-        {
-            Graph ostovGraph = new Graph();
-
-            ostovGraph.AddVertex("V1");
-
-            //List<GraphVertex> allVerticies = VertexEdges.Keys.ToList();
-
-            //List<GraphVertex> verticesOfOstov = new List<GraphVertex>();
-
-            //verticesOfOstov.Add(FindVertex("V6"));
-
-            while (ostovGraph.VertexEdges.Count != VertexEdges.Count)
-            {
-                int min_weight = int.MaxValue;
-
-                GraphVertex minVertex = null;
-
-                foreach (var Vertex in VertexEdges.Keys)
-                {
-
-                    foreach (var edge in VertexEdges[Vertex])
-                    {
-                        if (edge.EdgeWeight < min_weight)
-                        {
-                            min_weight = edge.EdgeWeight;
-                            minVertex = edge.SecondVertex;
-                        }
-                    }
-
-                    if (minVertex != null)
-                    {
-                        ostovGraph.AddVertex(minVertex.Name);
-                        ostovGraph.AddEdgeDict(minVertex.Name, Vertex.Name, weight: min_weight);
-                    }
-
-                    Console.WriteLine($"Min = {min_weight}, Vert = {minVertex.Name}");
-                }
-            }
-        }
-
-
-        public void Task_III_Prim_NewTry()
-        {
-            Graph ostovGraph = new Graph();
-
-            ostovGraph.AddVertex("V1");
-
-            Graph originalGraphCopy = new Graph(this);
-
-            int min_weight = int.MaxValue;
-
-            //foreach(var edge in originalGraphCopy.VertexEdges[FindVertex("V1")])
-            //{
-            //    if(edge.EdgeWeight < min_weight)
-            //    {
-            //        min_weight = edge.EdgeWeight;
-            //    }   
-            //}
-
-            //foreach (var edge in originalGraphCopy.VertexEdges[FindVertex("V1")])
-            //{
-            //    if(edge.EdgeWeight == min_weight)
-            //    {
-            //        ostovGraph.AddVertex(edge.SecondVertex.Name);
-            //        ostovGraph.AddEdgeDict("V1", edge.SecondVertex.Name, weight : edge.EdgeWeight);
-            //    }
-            //}
-
-            marksPrim.Clear();
-            foreach (var vertex in VertexEdges.Keys)
-            {
-                marksPrim.Add(vertex, false);
-            }
-
-            Dictionary<GraphVertex, int> min_e = new Dictionary<GraphVertex, int>();
-            foreach (var vertex in VertexEdges.Keys)
-            {
-                min_e.Add(vertex, int.MaxValue);
-            }
-
-            Dictionary<GraphVertex, GraphVertex> sel_e = new Dictionary<GraphVertex, GraphVertex>();
-            foreach (var vertex in VertexEdges.Keys)
-            {
-                sel_e.Add(vertex, null);
-            }
-
-            foreach (var vertex_1 in VertexEdges.Keys)
-            {
-                GraphVertex v = null;
-                foreach (var vertex_2 in VertexEdges.Keys)
-                {
-                    if (marksPrim[vertex_2] == false && (v == null || min_e[vertex_2] < min_e[v]))
-                    {
-                        v = vertex_2;
-                    }
-                }
-
-                if (min_e[v] == int.MaxValue)
-                {
-                    Console.WriteLine("Не возможно построить остов");
-                    break;
-                }
-
-                marksPrim[v] = true;
-                if (sel_e[v] != null)
-                {
-                    Console.WriteLine(v + " " + sel_e[v]);
-                }
-
-                foreach (var vertex_to in VertexEdges.Keys)
-                    if (VertexEdges[v].Find(vert => vert.SecondVertex.Name == vertex_to.Name).EdgeWeight < min_e[vertex_to])
-                    {
-                        min_e[vertex_to] = VertexEdges[v].Find(vert => vert.SecondVertex.Name == vertex_to.Name).EdgeWeight;
-                        sel_e[vertex_to] = v;
-                    }
-            }
-
-            //ostovGraph.PrintVertices();
-            // ostovGraph.PrintListEdges();
-            //ostovGraph.PrintMatrix(1);
-        }
-
         public void PrimStartRandom()
         {
             Random random = new Random();
@@ -870,10 +744,10 @@ namespace Graphs.Graphs
 
         public void PrimStart(string vertex)
         {
-            Task_III_Prim_AnotherNewTry(FindVertex(vertex));
+            Task_III_Prim(FindVertex(vertex));
         }
 
-        private void Task_III_Prim_AnotherNewTry(GraphVertex choosenVertex)
+        private void Task_III_Prim(GraphVertex choosenVertex)
         {
             Graph ostovGraph = new Graph();
             
