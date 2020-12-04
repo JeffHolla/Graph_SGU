@@ -877,7 +877,7 @@ namespace Graphs.Graphs
         {
             Graph ostovGraph = new Graph();
             
-            // Добавляем случайную вершину
+            // Добавляем определённую вершину
             ostovGraph.AddVertex(choosenVertex.Name);
 
             // Список для хранения пройденных вершин
