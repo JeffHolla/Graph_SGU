@@ -33,9 +33,86 @@ namespace Graphs
 
             //Task_II_Victoria();
 
-            Task_III_Prim();
+            //Task_III_Prim();
+
+            //Task_IV_A_Dijkstra_6();
+
+            Task_IV_A_Dijkstra_6_Alt_Graph();
 
             Console.WriteLine();
+        }
+
+        static void Task_IV_A_Dijkstra_6_Alt_Graph()
+        {
+            Graph graph = new Graph();
+
+            graph.AddVertices("V1", "V2", "V3", "V4", "V5");
+
+            graph.PrintVertices();
+            graph.PrintListEdges();
+
+            graph.AddEdgeDict("V1", "V2", weight: 15);
+            graph.AddEdgeDict("V3", "V2", weight: 75);
+            graph.AddEdgeDict("V4", "V1", weight: 85);
+
+            graph.AddEdgeDict("V5", "V3", weight: 25);
+
+
+            graph.AddVertices("V6", "V7", "V8");
+
+
+            graph.AddEdgeDict("V4", "V6", weight: 35);
+            graph.AddEdgeDict("V6", "V1", weight: 65);
+
+            graph.AddEdgeDict("V4", "V7", weight: 45);
+            graph.AddEdgeDict("V7", "V3", weight: 20);
+
+            graph.AddEdgeDict("V5", "V8", weight: 33);
+            graph.AddEdgeDict("V8", "V1", weight: 44);
+
+
+            graph.PrintVertices();
+            graph.PrintListEdges();
+            graph.PrintMatrix(1, true, false);
+            Console.WriteLine();
+            graph.PrintMatrix(1, true, true);
+
+            //graph.Print_Dijkstra("V0");
+            Console.WriteLine();
+            graph.Task_Dijkstra_IV_A_6();
+        }
+
+        // Вопрос с вершинами
+        static void Task_IV_A_Dijkstra_6()
+        {
+            Graph graph = new Graph();
+
+            graph.AddVertices("V0", "V1", "V2", "V3", "V4");
+
+            graph.AddEdgeDict("V0", "V1", true, weight: 10);
+            graph.AddEdgeDict("V0", "V2", true, weight: 30);
+            graph.AddEdgeDict("V0", "V3", true, weight: 50);
+            graph.AddEdgeDict("V0", "V4", true, weight: 10);
+            
+            graph.AddEdgeDict("V2", "V4", true, weight:10);
+
+            graph.AddEdgeDict("V3", "V1", true, weight:40);
+            graph.AddEdgeDict("V3", "V2", true, weight:20);
+            
+            graph.AddEdgeDict("V4", "V0", true, weight:10);
+            graph.AddEdgeDict("V4", "V2", true, weight:10);
+            graph.AddEdgeDict("V4", "V3", true, weight:30);
+
+            graph.PrintVertices();
+            graph.PrintListEdges();
+            graph.PrintMatrix(0, true, false);
+            Console.WriteLine();
+            graph.PrintMatrix(0, true, true);
+
+            //graph.Print_Dijkstra("V0");
+            Console.WriteLine();
+            graph.Task_Dijkstra_IV_A_6();
+           // graph.Task_IV_A_Dijkstra_6__MATRIX("V0");
         }
 
         static void Task_III_Prim()
@@ -43,7 +120,7 @@ namespace Graphs
             Graph graph = new Graph();
 
             graph.AddVertices("V1", "V2", "V3", "V4", "V5");
-            
+
             graph.PrintVertices();
             graph.PrintListEdges();
 
@@ -76,7 +153,7 @@ namespace Graphs
 
             Console.WriteLine("=======================================");
             Console.WriteLine("=======================================");
-            
+
             graph.PrimStart("V1");
             //graph.PrimStartRandom();
         }
@@ -164,10 +241,10 @@ namespace Graphs
 
             //graph.StartDFS("V4", "V5");
 
-            List<string> solvedPath = graph.TaskSolve_II_1("V4", "V5", new[] { "V6", "V7", "V8"});
+            List<string> solvedPath = graph.TaskSolve_II_1("V4", "V5", new[] { "V6", "V7", "V8" });
 
             Console.Write("Path is : ");
-            foreach(var item in solvedPath)
+            foreach (var item in solvedPath)
             {
                 Console.Write(item + " ");
             }

@@ -122,24 +122,67 @@ namespace Graphs.Graphs
             }
         }
 
+        // Deprecated RemoveVertex
+        //public void RemoveVertex(string name)
+        //{
+        //    if (FindVertex(name) != null)
+        //    {
+
+        //        // Проходим по каждому ребру из удаляемой вершины
+        //        foreach (var edge in VertexEdges[FindVertex(name)])
+        //        {
+        //            // Прыгаем по конечным точкам (в GraphEdge указываются только конечная точка ребра) ребра вершины и удаляем их.
+        //            // VertexEdges[edge.SecondVertex] - прыжок в конечную вершину ребра и просмотр из этой вершины остальных рёбер
+        //            // Remove(... .Find(v => v.SecondVertex == FindVertex(name)) - поиск и удаление ребра из списка рёбер VertexEdges
+        //            VertexEdges[edge.SecondVertex].Remove(VertexEdges[edge.SecondVertex].Find(v => v.SecondVertex == FindVertex(name)));
+        //        }
+
+        //        // Находим ребро в словаре и удаляем
+        //        VertexEdges.Remove(FindVertex(name));
+
+
+        //    }
+        //    else
+        //    {
+        //        Console.WriteLine("Вершина не найдена!");
+        //    }
+        //}
+
         public void RemoveVertex(string name)
         {
-            if (FindVertex(name) != null)
-            {
+            GraphVertex vertexToDel = FindVertex(name);
 
-                // Проходим по каждому ребру из удаляемой вершины
-                foreach (var edge in VertexEdges[FindVertex(name)])
+            // Если найдена такая вершина
+            if (vertexToDel != null)
+            {
+                // Проходим по каждой вершине из списка
+                // ToList сделан для того, чтобы передать копию, потому что мы изменяем коллекцию в цикле
+                foreach (var vertex in VertexEdges.Keys.ToList())
                 {
-                    // Прыгаем по конечным точкам (в GraphEdge указываются только конечная точка ребра) ребра вершины и удаляем их.
-                    // VertexEdges[edge.SecondVertex] - прыжок в конечную вершину ребра и просмотр из этой вершины остальных рёбер
-                    // Remove(... .Find(v => v.SecondVertex == FindVertex(name)) - поиск и удаление ребра из списка рёбер VertexEdges
-                    VertexEdges[edge.SecondVertex].Remove(VertexEdges[edge.SecondVertex].Find(v => v.SecondVertex == FindVertex(name)));
+                    // Если имя текущей вершины не совпадает с именем вершины
+                    if (vertex.Name != vertexToDel.Name)
+                    {
+                        // Создаём копию рёбер, потому что в цикле будем менять коллекцию
+                        List<GraphEdge> copyOfEdges = new List<GraphEdge>(VertexEdges[vertex]);
+                        // Просматриваем каждое ребро исходящее из текущего vertex
+                        foreach (var edge in VertexEdges[vertex])
+                        {
+                            // Если конечная вершина ребра равна той вершине, которую нам нужно удалить, то
+                            // удаляем это ребро из копии списка рёбер
+                            if (edge.SecondVertex.Name == vertexToDel.Name)
+                                copyOfEdges.Remove(edge);
+                        }
+                        // присваеваем этой вершине новый список рёбер.
+                        // По сути из этого списка удалены рёбра, которые идут В удаляемую вершину.
+                        VertexEdges[vertex] = copyOfEdges;
+                    }
                 }
 
-                // Находим ребро в словаре и удаляем
-                VertexEdges.Remove(FindVertex(name));
+                // Удаляем рёбра, которые идут ИЗ удаляемой вершины.
+                VertexEdges[vertexToDel].Clear();
 
-
+                // Находим Вершину в словаре и удаляем
+                VertexEdges.Remove(vertexToDel);
             }
             else
             {
@@ -177,7 +220,6 @@ namespace Graphs.Graphs
                 Console.WriteLine("Вершина не найдена!");
             }
         }
-
 
         //Fixed
         public void RemoveEdgeDict(string name_of_vertex_1, string name_of_vertex_2, bool is_oriented = false)
@@ -239,24 +281,91 @@ namespace Graphs.Graphs
 
 
 
-        // Работает только при последовательном ходе вершин, т.е. при V0, V1, ..., Vn к примеру.
-        // В вызове указывается сдвиг вершин, т.е. кол-во вершин до нулевой(V0)
-        public void PrintMatrix(int shiftOfVertices)
+        /// <summary>
+        /// Работает только при последовательном ходе вершин, т.е. при V0, V1, ..., Vn к примеру.
+        /// В вызове указывается сдвиг вершин, т.е. кол-во вершин до нулевой(V0)
+        /// </summary>
+        /// <param name="shiftOfVertices">Сдвиг до V0, т.е. количество вершин до V0</param>
+        /// <param name="reversed">
+        /// При False столбецы матрицы - исходящие вершины, строка - конечная вершина.
+        /// При True строка матрицы - исходящая вершина, столбцы - конечные вершины.
+        /// </param>
+        /// <param name="verticalLines">Рисуются ли вертикальные линии между столбцами в матрице</param>
+        public void PrintMatrix(int shiftOfVertices, bool reversed = false, bool verticalLines = false, bool horizontalLines = false)
         {
-            int[,] matrix = ToMatrix(shiftOfVertices);
+            int[,] matrix = ToMatrix(shiftOfVertices, reversed);
 
+            Console.Write("  |");
             for (int i = 0; i < matrix.GetLength(0); ++i)
             {
-                for (int j = 0; j < matrix.GetLength(1); ++j)
-                {
-                    if (i != j)
-                        Console.Write("{0, 3} ", matrix[i, j]);
-                    else
-                        Console.Write("inf ");
-                }
-
-                Console.WriteLine();
+                if (verticalLines == false)
+                    Console.Write($"{i,3} |");
+                else
+                    Console.Write($"{i,3} |");
             }
+
+            // Горизонтальная линия после верхних индексов
+            Console.WriteLine("");
+            Console.Write("---");
+            for (int i = 0; i < matrix.GetLength(0); ++i)
+            {
+                Console.Write("{0,3}", "-----");
+            }
+
+            Console.WriteLine("");
+
+            if (verticalLines == false)
+                for (int i = 0; i < matrix.GetLength(0); ++i)
+                {
+                    Console.Write("{0,2}|", i);
+                    for (int j = 0; j < matrix.GetLength(1); ++j)
+                    {
+                        if (i != j)
+                        {
+                            Console.Write("{0, 4} ", matrix[i, j]);
+                        }
+                        else
+                            Console.Write("{0, 4} ", "inf");
+                    }
+
+                    if (horizontalLines == true)
+                    {
+                        Console.WriteLine("");
+                        Console.Write("---");
+                        for (int j = 0; j < matrix.GetLength(0); ++j)
+                        {
+                            Console.Write("{0,3}", "-----");
+                        }
+                    }
+
+                    Console.WriteLine();
+                }
+            else
+                for (int i = 0; i < matrix.GetLength(0); ++i)
+                {
+                    Console.Write("{0,2}|", i);
+                    for (int j = 0; j < matrix.GetLength(1); ++j)
+                    {
+                        if (i != j)
+                        {
+                            Console.Write("{0, 3} |", matrix[i, j]);
+                        }
+                        else
+                            Console.Write("{0, 3} |", "inf");
+                    }
+
+                    if (horizontalLines == true)
+                    {
+                        Console.WriteLine("");
+                        Console.Write("---");
+                        for (int j = 0; j < matrix.GetLength(0); ++j)
+                        {
+                            Console.Write("{0,3}", "-----");
+                        }
+                    }
+
+                    Console.WriteLine();
+                }
         }
 
         public void PrintListEdges()
@@ -281,7 +390,7 @@ namespace Graphs.Graphs
             }
             Console.WriteLine();
         }
-
+        // Поиск вершины
         private GraphVertex FindVertex(string name)
         {
             foreach (var vert in VertexEdges.Keys)
@@ -294,8 +403,9 @@ namespace Graphs.Graphs
 
             return null;
         }
-
-        private int[,] ToMatrix(int shiftOfVertices)
+        // Возвращает матрицу текущего графа
+        // Указывается сдвиг до V0
+        private int[,] ToMatrix(int shiftOfVertices, bool reversed = false)
         {
             int[,] matrix = new int[VertexEdges.Count, VertexEdges.Count];
 
@@ -314,8 +424,12 @@ namespace Graphs.Graphs
             {
                 foreach (var item in pair.Value)
                 {
-                    matrix[int.Parse(item.SecondVertex.Name.Remove(0, 1)) - shiftOfVertices,
-                        int.Parse(pair.Key.Name.Remove(0, 1)) - shiftOfVertices] = item.EdgeWeight;
+                    if (reversed == false)
+                        matrix[int.Parse(item.SecondVertex.Name.Remove(0, 1)) - shiftOfVertices,
+                            int.Parse(pair.Key.Name.Remove(0, 1)) - shiftOfVertices] = item.EdgeWeight;
+                    else
+                        matrix[int.Parse(pair.Key.Name.Remove(0, 1)) - shiftOfVertices,
+                        int.Parse(item.SecondVertex.Name.Remove(0, 1)) - shiftOfVertices] = item.EdgeWeight;
                 }
             }
 
@@ -750,7 +864,7 @@ namespace Graphs.Graphs
         private void Task_III_Prim(GraphVertex choosenVertex)
         {
             Graph ostovGraph = new Graph();
-            
+
             // Добавляем определённую вершину
             ostovGraph.AddVertex(choosenVertex.Name);
 
@@ -815,7 +929,7 @@ namespace Graphs.Graphs
                                 originalGraphCopy.RemoveEdgeDict(vertex.Name, edge.SecondVertex.Name);
                             }
                         }
-                    }   
+                    }
                 }
                 // Выводим список смежности оставного графа
                 ostovGraph.PrintListEdges();
@@ -829,7 +943,453 @@ namespace Graphs.Graphs
             ostovGraph.PrintMatrix(1);
         }
 
+        #endregion
 
+        #region Task_IV_A_Dijkstra
+        // В графе нет рёбер отрицательного веса.
+        // 6.Найти вершину, сумма длин кратчайших путей от которой до остальных вершин минимальна.
+
+        /* Stable Deprecated Version of Dijkstra
+        //public Dictionary<GraphVertex, int> Dijkstra(string startVert)
+        //{
+        //    // Стартовая вершина
+        //    GraphVertex startVertex = FindVertex(startVert);
+
+        //    // Создаём копию графа.
+        //    // В дальнейшем будем работать с копией списка смежности из копии графа потому что там удобнее удаление вершин :)
+        //    Graph graphCopy = new Graph(this);
+
+        //    // Словарь для меток. Первый параметр - вершина, второй - её метка.
+        //    Dictionary<GraphVertex, int> listMarksOfVertices = new Dictionary<GraphVertex, int>();
+        //    // Заполняем весь словарь. Метки изначально ставим максимальные
+        //    foreach (var vertex in graphCopy.VertexEdges.Keys)
+        //    {
+        //        listMarksOfVertices.Add(vertex, int.MaxValue);
+        //    }
+
+        //    // Стартовую метку помечаем как 0
+        //    listMarksOfVertices[startVertex] = 0;
+
+        //    // Очередь не подходит т.к. нам нужно выбирать вершину для перехода по наименьшему пути
+        //    // Словарь для вершин, которые нам нужно пройти
+        //    // Фактически этот словарь нужен для сохранения других вершин, если в текущих вершинах тупик.
+        //    // Обновляется в случае, если есть путь дальше
+        //    Dictionary<GraphVertex, int> vertexWay = new Dictionary<GraphVertex, int>();
+        //    // Заполняем возможные для посещения вершины от стартовой
+        //    foreach (var edge in graphCopy.VertexEdges[startVertex])
+        //    {
+        //        vertexWay.Add(edge.SecondVertex, edge.EdgeWeight);
+        //    }
+
+        //    // Текущая вершина для обозначения вершины, с которой работаем на данный момент
+        //    GraphVertex currentVertex = startVertex;
+
+        //    // Пока есть пути, в которые мы можем пойти или пока есть вершины, которые мы не посетили
+        //    while (vertexWay.Count != 0 && graphCopy.VertexEdges.Count != 0)
+        //    {
+        //        // Высчитываем по алгоритму минимальный вес до вершины
+        //        foreach (var edge in graphCopy.VertexEdges[currentVertex])
+        //        {
+        //            // Если сумма ребра и текущей метки меньше, чем метка конечной вершины, то заменяем метку конечной вершины этой суммой
+        //            if (edge.EdgeWeight + listMarksOfVertices[currentVertex] < listMarksOfVertices[edge.SecondVertex])
+        //            {
+        //                listMarksOfVertices[edge.SecondVertex] = edge.EdgeWeight + listMarksOfVertices[currentVertex];
+        //            }
+        //        }
+
+        //        // Если от текущей вершины есть другие пути
+        //        if (graphCopy.VertexEdges[currentVertex].Count != 0)
+        //        {
+        //            // Очищаем список возможных путей
+        //            vertexWay.Clear();
+        //            // Создаём новый список возможных путей
+        //            foreach (var edge in graphCopy.VertexEdges[currentVertex])
+        //            {
+        //                vertexWay.Add(edge.SecondVertex, edge.EdgeWeight);
+        //            }
+
+        //            // Сортируем по значению(по int) и записываем обратно в словарь
+        //            vertexWay = vertexWay.OrderBy(vertex => vertex.Value).ToDictionary(pair => pair.Key, pair => pair.Value);
+
+        //            // Удаляем из списка смежности копии графа(для сохранности данных и удобного удаления) текущую вершину и считаем, что посетили её.
+        //            graphCopy.RemoveVertex(currentVertex.Name);
+        //            // Если больше не осталось вершин в списке смежности, то выходим из цикла.
+        //            if (graphCopy.VertexEdges.Count == 0)
+        //                break;
+
+        //            // Т.к. мы отсортировали возможные пути, то берём первый, т.к. он будет самым минимальным
+        //            currentVertex = vertexWay.First().Key;
+        //            // Убираем из возможных путей текущий путь, чтобы не уйти в рекурсию
+        //            vertexWay.Remove(currentVertex);
+        //        }
+        //        else // Если из текущей вершиные нет путей, то
+        //        {
+        //            // Удаляем из списка смежности копии графа(для сохранности данных и удобного удаления) текущую вершину и считаем, что посетили её.
+        //            graphCopy.RemoveVertex(currentVertex.Name);
+        //            // Если больше не осталось вершин в списке смежности, то выходим из цикла.
+        //            if (graphCopy.VertexEdges.Count == 0)
+        //                break;
+
+        //            // Т.к. мы всегда удаляем из списка текущих путей взятую вершину, то следующая "первая" вершина окажется другой.
+        //            // Берём её.
+        //            currentVertex = vertexWay.First().Key;
+        //            // Убираем из возможных путей текущий путь, чтобы не уйти в рекурсию
+        //            vertexWay.Remove(currentVertex);
+        //        }
+        //    }
+
+        //    //Console.WriteLine("Min ways : ");
+        //    //foreach (var item in listMarksOfVertices)
+        //    //{
+        //    //    Console.Write(item + " ");
+        //    //}
+
+        //    return listMarksOfVertices;
+        //}
+        */
+
+        public Dictionary<GraphVertex, int> Dijkstra(string startVert)
+        {
+            // Стартовая вершина
+            GraphVertex startVertex = FindVertex(startVert);
+
+            // Создаём копию графа.
+            // В дальнейшем будем работать с копией списка смежности из копии графа потому что там удобнее удаление вершин :)
+            Graph graphCopy = new Graph(this);
+
+            // Словарь для меток. Первый параметр - вершина, второй - её метка.
+            Dictionary<GraphVertex, int> listMarksOfVertices = new Dictionary<GraphVertex, int>();
+            // Заполняем весь словарь. Метки изначально ставим максимальные
+            foreach (var vertex in graphCopy.VertexEdges.Keys)
+            {
+                listMarksOfVertices.Add(vertex, int.MaxValue);
+            }
+
+            // Стартовую метку помечаем как 0
+            listMarksOfVertices[startVertex] = 0;
+
+            // Очередь не подходит т.к. нам нужно выбирать вершину для перехода по наименьшему пути
+            // Словарь для вершин, которые нам нужно пройти
+            // Фактически этот словарь нужен для сохранения других вершин, если в текущих вершинах тупик.
+            // Обновляется в случае, если есть путь дальше
+
+            // Создаём список из словарей, которые нам нужно пройти.
+            // Словарь нужен для сохранения вершин и путей к ним от текущей.
+            // Лист со словарём реализуют "уровневость" запоминания прохода по графу.
+            // С помощью него мы можем возвращаться практически к основанию графа, в случае, если пути дальше не будет.
+            List<Dictionary<GraphVertex, int>> vertexWay = new List<Dictionary<GraphVertex, int>>();
+            // Инициализируем нулевой уровень - стартовая вершина
+            vertexWay.Add(new Dictionary<GraphVertex, int>());
+            // Заполняем возможные для посещения вершины от стартовой
+            foreach (var edge in graphCopy.VertexEdges[startVertex])
+            {
+                vertexWay[0].Add(edge.SecondVertex, edge.EdgeWeight);
+            }
+
+            // Текущая вершина для обозначения вершины, с которой работаем на данный момент
+            GraphVertex currentVertex = startVertex;
+
+            // Инициализируем глубину уровней
+            int dephtOfVertices = 0;
+
+            // Пока есть пути, в которые мы можем пойти или пока есть вершины, которые мы не посетили
+            while (vertexWay.Count != 0 && graphCopy.VertexEdges.Count != 0)
+            {
+                // Высчитываем по алгоритму минимальный вес до вершины
+                foreach (var edge in graphCopy.VertexEdges[currentVertex])
+                {
+                    // Если сумма ребра и текущей метки меньше, чем метка конечной вершины, то заменяем метку конечной вершины этой суммой
+                    if (edge.EdgeWeight + listMarksOfVertices[currentVertex] < listMarksOfVertices[edge.SecondVertex])
+                    {
+                        listMarksOfVertices[edge.SecondVertex] = edge.EdgeWeight + listMarksOfVertices[currentVertex];
+                    }
+                }
+
+                // Если от текущей вершины есть другие пути
+                if (graphCopy.VertexEdges[currentVertex].Count != 0)
+                {
+                    // Если есть другие пути, то поднимаемся на новый уровень
+                    dephtOfVertices += 1;
+                    // Инициализируем новый уровень
+                    vertexWay.Add(new Dictionary<GraphVertex, int>());
+                    // Создаём новый список возможных путей
+                    foreach (var edge in graphCopy.VertexEdges[currentVertex])
+                    {
+                        vertexWay[dephtOfVertices].Add(edge.SecondVertex, edge.EdgeWeight);
+                    }
+
+                    // Сортируем по значению(по int) и записываем обратно в словарь
+                    vertexWay[dephtOfVertices] = vertexWay[dephtOfVertices].
+                                                OrderBy(vertex => vertex.Value).
+                                                ToDictionary(pair => pair.Key, pair => pair.Value);
+
+                    // Удаляем из списка смежности копии графа(для сохранности данных и удобного удаления) текущую вершину и считаем, что посетили её.
+                    graphCopy.RemoveVertex(currentVertex.Name);
+                    // Если больше не осталось вершин в списке смежности, то выходим из цикла.
+                    if (graphCopy.VertexEdges.Count == 0)
+                        break;
+
+                    // Т.к. мы отсортировали возможные пути, то берём первый, т.к. он будет самым минимальным
+                    currentVertex = vertexWay[dephtOfVertices].First().Key;
+                    // Убираем из возможных путей текущий путь, чтобы не уйти в рекурсию
+                    vertexWay[dephtOfVertices].Remove(currentVertex);
+                }
+                else // Если из текущей вершиные нет путей, то
+                {
+                    // Удаляем из списка смежности копии графа(для сохранности данных и удобного удаления) текущую вершину и считаем, что посетили её.
+                    graphCopy.RemoveVertex(currentVertex.Name);
+                    // Если больше не осталось вершин в списке смежности, то выходим из цикла.
+                    if (graphCopy.VertexEdges.Count == 0)
+                        break;
+
+                    // Если же на текущем уровне, т.е. от текущей вершины некуда идти, то спускаемся на уровень ниже,
+                    // пока не найдём уровень, на котором есть доступные пути.
+                    while (dephtOfVertices >= 0 && vertexWay[dephtOfVertices].Keys.Count == 0)
+                    {
+                        vertexWay[dephtOfVertices].Clear();
+                        dephtOfVertices -= 1;
+                    }
+
+                    // На случай, если есть недостижимые вершины, то глубина уйдёт в минус => прерываем цикл
+                    if (dephtOfVertices < 0)
+                        break;
+
+                    currentVertex = vertexWay[dephtOfVertices].First().Key;
+                    vertexWay[dephtOfVertices].Remove(currentVertex);
+                }
+            }
+
+            return listMarksOfVertices;
+        }
+
+        public void Print_Dijkstra(string startVertex)
+        {
+            Console.WriteLine($"Min ways from {startVertex}: ");
+            foreach (var item in Dijkstra(startVertex))
+            {
+                Console.Write(item + " ");
+            }
+        }
+
+        // 6.Найти вершину, сумма длин кратчайших путей от которой до остальных вершин минимальна.
+        public void Task_Dijkstra_IV_A_6()
+        {
+            List<Tuple<GraphVertex, int>> graphVerticesAndSums = new List<Tuple<GraphVertex, int>>();
+            foreach (var vertex in VertexEdges.Keys)
+            {
+                // Нужно ли проверять вершины, которые не имеют пути только в одну другую вершину или нет?
+                graphVerticesAndSums.Add(new Tuple<GraphVertex, int>(vertex, Dijkstra(vertex.Name).
+                                                                              Where(pair => pair.Value != int.MaxValue).
+                                                                              Sum(v => v.Value)));
+                Print_Dijkstra(vertex.Name);
+                Console.WriteLine();
+            }
+
+            foreach (var item in graphVerticesAndSums)
+            {
+                Console.WriteLine(item + " ");
+            }
+
+            Console.WriteLine($"Минимальная сумма длин кратчайших путей от которой " +
+                $"до остальных вершин минимальна это : {graphVerticesAndSums.Min(pair => pair.Item2)}");
+        }
+
+
+        // Dnt wrk
+        public void Task_IV_A_Dijkstra_6__MATRIX(string startVert)
+        {
+            GraphVertex startVertex = FindVertex(startVert);
+
+            int int_startVertex = int.Parse(startVert.Remove(0, 1));
+
+            bool[] marksInt = new bool[VertexEdges.Keys.Count];
+
+            marksInt[int_startVertex] = true;
+
+            //создаем матрицу с
+            int[,] c_matrix = ToMatrix(0, true);
+            for (int i = 0; i < VertexEdges.Keys.Count; ++i)
+            {
+                for (int j = 0; j < VertexEdges.Keys.Count; ++j)
+                {
+                    if (c_matrix[i, j] == 0)
+                    {
+                        c_matrix[i, j] = int.MaxValue;
+                    }
+                }
+            }
+
+            //создаем матрицы d и p
+            long[] d = new long[VertexEdges.Keys.Count]; //все возможные пути из v
+            int[] p = new int[VertexEdges.Keys.Count];  //кратчайшие маршруты
+            for (int i = 0; i < VertexEdges.Keys.Count; i++) //цикл записывает в массив d все возможные пути из вершины v
+                                                             // и кратчайшие маршруты в доступные вершины в массив p из вершины v
+            {
+                if (i != int_startVertex)
+                {
+                    d[i] = c_matrix[int_startVertex, i];
+                    p[i] = int_startVertex;
+                }
+            }
+
+            // Проходим по каждой вершине
+            for (int i = 0; i < VertexEdges.Keys.Count - 1; i++)
+            {
+                // В первом цикле ищем вершину с самым маленьким путём и переходим на неё
+                long min = int.MaxValue;
+                int w = 0; // новая вершина с наименьшим значением веса(длина дороги и т.д.), на которую мы в последствии перейдём
+                for (int u = 0; u < VertexEdges.Keys.Count; u++)
+                {
+                    if (marksInt[u] && min > d[u])
+                    {
+                        min = d[u];
+                        w = u;
+                    }
+                }
+                marksInt[w] = false; //помечаем вершину w как помеченную
+
+                // Для каждой вершины, которую ещё не посетили(nov[u]), определяем кратчайший путь от
+                // источника(w) до этой вершины
+                for (int u = 0; u < VertexEdges.Keys.Count; u++)
+                {
+                    long distance = d[w] + c_matrix[w, u];// long - чтобы не переполнить int, если начнёт пребавляться int.MaxValue из c[w,u]
+                    if (marksInt[u] && d[u] > distance)
+                    {
+                        d[u] = distance;
+                        p[u] = w;
+                    }
+                }
+            }
+
+            Console.WriteLine("Длина кратчайшие пути от вершины {0} до вершины", int_startVertex);
+            for (int i = 0; i < VertexEdges.Keys.Count; i++)
+            {
+                if (i != int_startVertex)
+                {
+                    Console.Write("{0} равна {1}, ", i, d[i]);
+                    Console.Write("путь ");
+                    if (d[i] != int.MaxValue)
+                    {
+                        Stack items = new Stack();
+                        WayDijkstr(int_startVertex, i, p, ref items);
+                        while (items.Count != 0)
+                        {
+                            Console.Write("{0} ", items.Pop());
+                        }
+                    }
+                }
+                Console.WriteLine();
+            }
+        }
+
+
+        //public void Dijkstr(int v)
+        //{
+        //    graph.NovSet();//помечаем все вершины графа как непросмотренные
+        //    int[] p;
+        //    long[] d = graph.Dijkstr(v, out p); //запускаем алгоритм Дейкстры
+        //                                        //анализируем полученные данные и выводим их на экран
+        //    Console.WriteLine("Длина кратчайшие пути от вершины {0} до вершины", v);
+        //    for (int i = 0; i < graph.Size; i++)
+        //    {
+        //        if (i != v)
+        //        {
+        //            Console.Write("{0} равна {1}, ", i, d[i]);
+        //            Console.Write("путь ");
+        //            if (d[i] != int.MaxValue)
+        //            {
+        //                Stack items = new Stack();
+        //                graph.WayDijkstr(v, i, p, ref items);
+        //                while (items.Count != 0)
+        //                {
+        //                    Console.Write("{0} ", items.Pop());
+        //                }
+        //            }
+        //        }
+        //        Console.WriteLine();
+        //    }
+        //}
+
+        //восстановление пути от вершины a до вершины b для алгоритма Дейкстры
+        public void WayDijkstr(int a, int b, int[] p, ref Stack items)
+        {
+            items.Push(b); //помещаем вершину b в стек
+            if (a == p[b]) //если предыдущей для вершины b является вершина а, то
+            {
+                items.Push(a); //помещаем а в стек и завершаем восстановление пути
+            }
+            else //иначе метод рекурсивно вызывает сам себя для поиска пути
+            { //от вершины а до вершины, предшествующей вершине b
+                WayDijkstr(a, p[b], p, ref items);
+            }
+        }
+
+        //реализация алгоритма Дейкстры
+        //public long[] Dijkstr(int start_vertex, out int[] p)
+        //{
+        //    nov[start_vertex] = false; // помечаем вершину v как просмотренную
+
+        //    //создаем матрицу с
+        //    int[,] c = new int[Size, Size];
+        //    for (int i = 0; i < Size; i++)
+        //    {
+        //        for (int u = 0; u < Size; u++)
+        //        {
+        //            if (array[i, u] == 0 || i == u)
+        //            {
+        //                c[i, u] = int.MaxValue;
+        //            }
+        //            else
+        //            {
+        //                c[i, u] = array[i, u];
+        //            }
+        //        }
+        //    }
+
+        //    //создаем матрицы d и p
+        //    long[] d = new long[Size];//все возможные пути из v
+        //    p = new int[Size];//кратчайшие маршруты
+        //    for (int u = 0; u < Size; u++)//цикл записывает в массив d все возможные пути из вершины v
+        //                                  // и кратчайшие маршруты в доступные вершины в массив p из вершины v
+        //    {
+        //        if (u != start_vertex)
+        //        {
+        //            d[u] = c[start_vertex, u];
+        //            p[u] = start_vertex;
+        //        }
+        //    }
+
+        //    // Проходим по каждой вершине
+        //    for (int i = 0; i < Size - 1; i++)
+        //    {
+
+        //        // В первом цикле ищем вершину с самым маленьким путём и переходим на неё
+        //        long min = int.MaxValue;
+        //        int w = 0; // новая вершина с наименьшим значением веса(длина дороги и т.д.), на которую мы в последствии перейдём
+        //        for (int u = 0; u < Size; u++)
+        //        {
+        //            if (nov[u] && min > d[u])
+        //            {
+        //                min = d[u];
+        //                w = u;
+        //            }
+        //        }
+        //        nov[w] = false; //помечаем вершину w как помеченную
+
+        //        // Для каждой вершины, которую ещё не посетили(nov[u]), определяем кратчайший путь от
+        //        // источника(w) до этой вершины
+        //        for (int u = 0; u < Size; u++)
+        //        {
+        //            long distance = d[w] + c[w, u];// long - чтобы не переполнить int, если начнёт пребавляться int.MaxValue из c[w,u]
+        //            if (nov[u] && d[u] > distance)
+        //            {
+        //                d[u] = distance;
+        //                p[u] = w;
+        //            }
+        //        }
+        //    }
+        //    return d; //в качестве результата возвращаем массив кратчайших путей для
+        //} //заданного источника
 
         #endregion
 
