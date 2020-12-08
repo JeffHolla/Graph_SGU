@@ -1560,7 +1560,7 @@ namespace Graphs.Graphs
         }
 
         //IV b - В графе нет циклов отрицательного веса.       - 13. Вывести кратчайшие пути из вершины u до v1 и v2.
-        public void Task_IV_B_Ford_Bellman__Floyd(string startVertex, string vertex_1, string vertex_2)
+        public void Task_IV_B_Ford_Bellman(string startVertex, string vertex_1, string vertex_2)
         {
             // Массив для хранения двух конечных вершин
             string[] arrOfVertices = { vertex_1, vertex_2 };
@@ -1588,7 +1588,7 @@ namespace Graphs.Graphs
         }
 
         //IV c - В графе могут быть циклы отрицательного веса. - 9.  Вывести длины кратчайших путей для всех пар вершин.
-        public void Task_IV_C_Ford_Bellman__Floyd()
+        public void Task_IV_C_Ford_Bellman()
         {
             // Лист всех вершин
             List<GraphVertex> arrOfVertices = VertexEdges.Keys.ToList();
@@ -1600,6 +1600,10 @@ namespace Graphs.Graphs
             // Проходим по вершинам
             for(int i=0; i< arrOfVertices.Count; i++)
             {
+                // Чистим словари для следующей итерации
+                listMarksOfVertices.Clear();
+                path.Clear();
+
                 Console.WriteLine("=============================");
                 Console.WriteLine($"Current Vertex is {arrOfVertices[i]}");
 
@@ -1610,7 +1614,7 @@ namespace Graphs.Graphs
                 if (isNegate == true)
                 {
                     // то пропускаем эту итерацию
-                    Console.WriteLine("В данном цикле есть отрицательный цикл!");
+                    Console.WriteLine("В данном пути есть отрицательный цикл!");
                     continue;
                 }
 
@@ -1639,10 +1643,6 @@ namespace Graphs.Graphs
                     Console.WriteLine();
                 }
                 Console.WriteLine("=============================");
-
-                // Чистим словари для следующей итерации
-                listMarksOfVertices.Clear();
-                path.Clear();
             }
         }
 

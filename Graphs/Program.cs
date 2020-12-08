@@ -41,7 +41,7 @@ namespace Graphs
 
             //Task_IV_B_Ford_Bellman__Floyd();
 
-            //Taks_IV_C_Ford_Bellman();
+            Taks_IV_C_Ford_Bellman();
 
             Console.WriteLine();
         }
@@ -60,6 +60,7 @@ namespace Graphs
 
             graph.AddEdgeDict("V1", "V2", weight: 2, is_oriented: true);
             graph.AddEdgeDict("V1", "V3", weight: 2, is_oriented: true);
+            //graph.AddEdgeDict("V1", "V3", weight: -2, is_oriented: true); // Отрицательный цикл
             graph.AddEdgeDict("V1", "V4", weight: 3, is_oriented: true);
 
             graph.AddEdgeDict("V2", "V3", weight: -3, is_oriented: true);
@@ -71,10 +72,10 @@ namespace Graphs
             graph.PrintListEdges();
 
             //graph.StartFord_Bellman("V0", negateCycleVersion: true);
-            graph.Task_IV_C_Ford_Bellman__Floyd();
+            graph.Task_IV_C_Ford_Bellman();
         }
 
-        static void Task_IV_B_Ford_Bellman__Floyd()
+        static void Task_IV_B_Ford_Bellman()
         {
             Graph graph = new Graph();
 
@@ -101,7 +102,7 @@ namespace Graphs
             //graph.Ford_Bellman_PrintWay("V0", "V3");
             //Console.WriteLine();
             //graph.Ford_Bellman_PrintWay("V0", "V2");
-            graph.Task_IV_B_Ford_Bellman__Floyd("V0", "V2", "V3");
+            graph.Task_IV_B_Ford_Bellman("V0", "V2", "V3");
 
             // ==============================================
             //graph.AddVertices("V1", "V2", "V3", "V4", "V5");
