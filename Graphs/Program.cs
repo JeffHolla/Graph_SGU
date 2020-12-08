@@ -35,11 +35,125 @@ namespace Graphs
 
             //Task_III_Prim();
 
-            //Task_IV_A_Dijkstra_6();
+            //Task_IV_A_Dijkstra_6(); // Вопрос про достижимость
 
-            Task_IV_A_Dijkstra_6_Alt_Graph();
+            //Task_IV_A_Dijkstra_6_Alt_Graph();
+
+            //Task_IV_B_Ford_Bellman__Floyd();
+
+            //Taks_IV_C_Ford_Bellman();
 
             Console.WriteLine();
+        }
+
+        static void Taks_IV_C_Ford_Bellman()
+        {
+            Graph graph = new Graph();
+
+            graph.AddVertices("V0", "V1", "V2", "V3", "V4");
+
+            graph.PrintVertices();
+            graph.PrintListEdges();
+
+            graph.AddEdgeDict("V0", "V1", weight: -1, is_oriented: true);
+            graph.AddEdgeDict("V0", "V4", weight: 4, is_oriented: true);
+
+            graph.AddEdgeDict("V1", "V2", weight: 2, is_oriented: true);
+            graph.AddEdgeDict("V1", "V3", weight: 2, is_oriented: true);
+            graph.AddEdgeDict("V1", "V4", weight: 3, is_oriented: true);
+
+            graph.AddEdgeDict("V2", "V3", weight: -3, is_oriented: true);
+
+            graph.AddEdgeDict("V3", "V1", weight: 1, is_oriented: true);
+            graph.AddEdgeDict("V3", "V4", weight: 5, is_oriented: true);
+
+            graph.PrintVertices();
+            graph.PrintListEdges();
+
+            //graph.StartFord_Bellman("V0", negateCycleVersion: true);
+            graph.Task_IV_C_Ford_Bellman__Floyd();
+        }
+
+        static void Task_IV_B_Ford_Bellman__Floyd()
+        {
+            Graph graph = new Graph();
+
+            graph.AddVertices("V0", "V1", "V2", "V3", "V4");
+
+            graph.PrintVertices();
+            graph.PrintListEdges();
+
+            graph.AddEdgeDict("V0", "V1", weight: -1, is_oriented: true);
+            graph.AddEdgeDict("V0", "V4", weight: 4, is_oriented: true);
+
+            graph.AddEdgeDict("V1", "V2", weight: 2, is_oriented: true);
+            graph.AddEdgeDict("V1", "V3", weight: 2, is_oriented: true);
+            graph.AddEdgeDict("V1", "V4", weight: 3, is_oriented: true);
+
+            graph.AddEdgeDict("V2", "V3", weight: -3, is_oriented: true);
+
+            graph.AddEdgeDict("V3", "V1", weight: 1, is_oriented: true);
+            graph.AddEdgeDict("V3", "V4", weight: 5, is_oriented: true);
+
+            graph.PrintVertices();
+            graph.PrintListEdges();
+
+            //graph.Ford_Bellman_PrintWay("V0", "V3");
+            //Console.WriteLine();
+            //graph.Ford_Bellman_PrintWay("V0", "V2");
+            graph.Task_IV_B_Ford_Bellman__Floyd("V0", "V2", "V3");
+
+            // ==============================================
+            //graph.AddVertices("V1", "V2", "V3", "V4", "V5");
+
+            //graph.PrintVertices();
+            //graph.PrintListEdges();
+
+            //graph.AddEdgeDict("V1", "V2", weight: 15);
+            //graph.AddEdgeDict("V3", "V2", weight: 75);
+            //graph.AddEdgeDict("V4", "V1", weight: 85);
+
+            //graph.AddEdgeDict("V5", "V3", weight: 25);
+
+
+            //graph.AddVertices("V6", "V7", "V8");
+
+
+            //graph.AddEdgeDict("V4", "V6", weight: 35);
+            //graph.AddEdgeDict("V6", "V1", weight: 65);
+
+            //graph.AddEdgeDict("V4", "V7", weight: 45);
+            //graph.AddEdgeDict("V7", "V3", weight: 20);
+
+            //graph.AddEdgeDict("V5", "V8", weight: 33);
+            //graph.AddEdgeDict("V8", "V1", weight: 44);
+
+            //graph.PrintVertices();
+            //graph.PrintListEdges();
+
+            //graph.Task_IV_B_Ford_Bellman__Floyd("V1");
+
+            // ==============================================
+            //graph.AddVertices("S", "A", "B", "C", "D", "E");
+
+            //graph.AddEdgeDict("S", "E", weight: 8, is_oriented: true);
+            //graph.AddEdgeDict("S", "A", weight: 10, is_oriented: true);
+
+            //graph.AddEdgeDict("E", "D", weight: 1, is_oriented: true);
+
+            //graph.AddEdgeDict("D", "A", weight: -4, is_oriented: true);
+            //graph.AddEdgeDict("D", "C", weight: -1, is_oriented: true);
+
+            //graph.AddEdgeDict("C", "B", weight: -2, is_oriented: true);
+
+            //graph.AddEdgeDict("B", "A", weight: 1, is_oriented: true);
+
+            //graph.AddEdgeDict("A", "C", weight: 2, is_oriented: true);
+
+            //graph.PrintVertices();
+            //graph.PrintListEdges();
+
+            //graph.Task_IV_B_Ford_Bellman__Floyd("S");
         }
 
         static void Task_IV_A_Dijkstra_6_Alt_Graph()
@@ -93,15 +207,15 @@ namespace Graphs
             graph.AddEdgeDict("V0", "V2", true, weight: 30);
             graph.AddEdgeDict("V0", "V3", true, weight: 50);
             graph.AddEdgeDict("V0", "V4", true, weight: 10);
-            
-            graph.AddEdgeDict("V2", "V4", true, weight:10);
 
-            graph.AddEdgeDict("V3", "V1", true, weight:40);
-            graph.AddEdgeDict("V3", "V2", true, weight:20);
-            
-            graph.AddEdgeDict("V4", "V0", true, weight:10);
-            graph.AddEdgeDict("V4", "V2", true, weight:10);
-            graph.AddEdgeDict("V4", "V3", true, weight:30);
+            graph.AddEdgeDict("V2", "V4", true, weight: 10);
+
+            graph.AddEdgeDict("V3", "V1", true, weight: 40);
+            graph.AddEdgeDict("V3", "V2", true, weight: 20);
+
+            graph.AddEdgeDict("V4", "V0", true, weight: 10);
+            graph.AddEdgeDict("V4", "V2", true, weight: 10);
+            graph.AddEdgeDict("V4", "V3", true, weight: 30);
 
             graph.PrintVertices();
             graph.PrintListEdges();
@@ -112,7 +226,7 @@ namespace Graphs
             //graph.Print_Dijkstra("V0");
             Console.WriteLine();
             graph.Task_Dijkstra_IV_A_6();
-           // graph.Task_IV_A_Dijkstra_6__MATRIX("V0");
+            // graph.Task_IV_A_Dijkstra_6__MATRIX("V0");
         }
 
         static void Task_III_Prim()

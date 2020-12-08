@@ -1162,6 +1162,7 @@ namespace Graphs.Graphs
             return listMarksOfVertices;
         }
 
+        // Вывод кратких путей от заданной вершины во все остальные
         public void Print_Dijkstra(string startVertex)
         {
             Console.WriteLine($"Min ways from {startVertex}: ");
@@ -1324,73 +1325,382 @@ namespace Graphs.Graphs
             }
         }
 
-        //реализация алгоритма Дейкстры
-        //public long[] Dijkstr(int start_vertex, out int[] p)
-        //{
-        //    nov[start_vertex] = false; // помечаем вершину v как просмотренную
 
-        //    //создаем матрицу с
-        //    int[,] c = new int[Size, Size];
-        //    for (int i = 0; i < Size; i++)
-        //    {
-        //        for (int u = 0; u < Size; u++)
-        //        {
-        //            if (array[i, u] == 0 || i == u)
-        //            {
-        //                c[i, u] = int.MaxValue;
-        //            }
-        //            else
-        //            {
-        //                c[i, u] = array[i, u];
-        //            }
-        //        }
-        //    }
+        #endregion
 
-        //    //создаем матрицы d и p
-        //    long[] d = new long[Size];//все возможные пути из v
-        //    p = new int[Size];//кратчайшие маршруты
-        //    for (int u = 0; u < Size; u++)//цикл записывает в массив d все возможные пути из вершины v
-        //                                  // и кратчайшие маршруты в доступные вершины в массив p из вершины v
-        //    {
-        //        if (u != start_vertex)
-        //        {
-        //            d[u] = c[start_vertex, u];
-        //            p[u] = start_vertex;
-        //        }
-        //    }
+        #region Task_IV_B_C_Ford_Bellman__Floyd
+        //IV b - В графе нет циклов отрицательного веса.       - 13. Вывести кратчайшие пути из вершины u до v1 и v2.
+        //IV c - В графе могут быть циклы отрицательного веса. - 9.  Вывести длины кратчайших путей для всех пар вершин.
 
-        //    // Проходим по каждой вершине
-        //    for (int i = 0; i < Size - 1; i++)
-        //    {
+        // Функция для старта функции с алгоритмом Форда - Беллмана
+        public void StartFord_Bellman(string startVertex, bool negateCycleVersion = false)
+        {
+            // Инициализируем словарь для пути. Ключ - исходная вершина, значение - конечная вершина 
+            Dictionary<GraphVertex, GraphVertex> path = new Dictionary<GraphVertex, GraphVertex>();
 
-        //        // В первом цикле ищем вершину с самым маленьким путём и переходим на неё
-        //        long min = int.MaxValue;
-        //        int w = 0; // новая вершина с наименьшим значением веса(длина дороги и т.д.), на которую мы в последствии перейдём
-        //        for (int u = 0; u < Size; u++)
-        //        {
-        //            if (nov[u] && min > d[u])
-        //            {
-        //                min = d[u];
-        //                w = u;
-        //            }
-        //        }
-        //        nov[w] = false; //помечаем вершину w как помеченную
+            // Словарь для меток вершин
+            Dictionary<GraphVertex, int> listMarksOfVertices = new Dictionary<GraphVertex, int>();
 
-        //        // Для каждой вершины, которую ещё не посетили(nov[u]), определяем кратчайший путь от
-        //        // источника(w) до этой вершины
-        //        for (int u = 0; u < Size; u++)
-        //        {
-        //            long distance = d[w] + c[w, u];// long - чтобы не переполнить int, если начнёт пребавляться int.MaxValue из c[w,u]
-        //            if (nov[u] && d[u] > distance)
-        //            {
-        //                d[u] = distance;
-        //                p[u] = w;
-        //            }
-        //        }
-        //    }
-        //    return d; //в качестве результата возвращаем массив кратчайших путей для
-        //} //заданного источника
+            // В зависимости от параметра выбирается нужная функция с алгоритмом
+            if (negateCycleVersion == false)
+                Ford_Bellman(startVertex, ref listMarksOfVertices, ref path);
+            else
+                Ford_Bellman_NegateCycle(startVertex, ref listMarksOfVertices, ref path);
+        }
 
+        // Форд-Беллман без учёта отрицательных циклов
+        private void Ford_Bellman(string startVert, ref Dictionary<GraphVertex, int> listMarksOfVertices,
+                                                    ref Dictionary<GraphVertex, GraphVertex> path)
+        {
+            // Понятное объяснение работы алгоритма -
+            // https://www.youtube.com/watch?v=obWXjtg0L64
+
+            // Сразу находим стартовую вершину и кастуем её в класс
+            GraphVertex startVertex = FindVertex(startVert);
+
+            // Заполняем весь словарь. Метки изначально ставим максимальные
+            foreach (var vertex in VertexEdges.Keys)
+            {
+                listMarksOfVertices.Add(vertex, int.MaxValue);
+                path.Add(vertex, null);
+            }
+            // Стартовую метку помечаем как 0
+            listMarksOfVertices[startVertex] = 0;
+
+            // Лист для хранения списка вершин
+            List<GraphVertex> vertexWay = new List<GraphVertex>();
+            // Алгоритм требует, чтобы первой вершиной в списке стояла НАЧАЛЬНАЯ ВЕРШИНА
+            vertexWay.Add(startVertex);
+            foreach (var vertex in VertexEdges.Keys)
+            {
+                // Добавленную стартовую вершину пропускаем
+                if (vertex == startVertex)
+                    continue;
+
+                // В цикле добавлем все остальные вершины
+                vertexWay.Add(vertex);
+            }
+
+            // Флаг для сокращения работы цикла. Нужен, чтобы не проходить лишние циклы.
+            // https://e-maxx.ru/algo/ford_bellman
+            // https://www.youtube.com/watch?v=obWXjtg0L64
+            bool isRelaxed = true;
+            // Проходим по количеству вершин - 1 раз от всего количества
+            for (int i = 0; i < vertexWay.Count - 1; ++i)
+            {
+                // Флаг ставим false, т.к. это каждый раз новая итерация
+                isRelaxed = false;
+
+                // Для каждой вершины
+                foreach (var vertex in vertexWay)
+                {
+                    // Просматриваем её рёбра
+                    foreach (var edge in VertexEdges[vertex])
+                    {
+                        // Если метка текущей вершины меньше бесконечности, то
+                        if (listMarksOfVertices[vertex] < int.MaxValue)
+                        {
+                            // Если метка конечной вершины больше, чем сумма метки текущей вершины и веса ребра
+                            if (listMarksOfVertices[edge.SecondVertex] > listMarksOfVertices[vertex] + edge.EdgeWeight)
+                            {
+                                // Присваиваем конечной вершине новую метку
+                                listMarksOfVertices[edge.SecondVertex] = listMarksOfVertices[vertex] + edge.EdgeWeight;
+
+                                // Посколько изменили метку, то запоминаем путь
+                                path[edge.SecondVertex] = vertex;
+
+                                // Т.к. мы нашли релаксацию(облегчение ребра), то ставим флаг true
+                                isRelaxed = true;
+                            }
+                        }
+                    }
+                }
+
+                // Если прошлись по всем рёбрам и вершинам, но ничего не уменьшили(не релаксировали), то
+                // выходим из цикла итерации
+                if (isRelaxed == false)
+                    break;
+            }
+
+
+            // Выводим полученные длины коротких путей
+            foreach (var vertex in listMarksOfVertices)
+            {
+                Console.Write(vertex + " ");
+            }
+
+            Console.WriteLine();
+
+        }
+
+        // Форд-Беллман с учётом отрицательных циклов
+        private bool Ford_Bellman_NegateCycle(string startVert, ref Dictionary<GraphVertex, int> listMarksOfVertices,
+                                                    ref Dictionary<GraphVertex, GraphVertex> path)
+        {
+            // Понятное объяснение работы алгоритма, но без негативного цикла -
+            // https://www.youtube.com/watch?v=obWXjtg0L64
+
+            // Сразу находим стартовую вершину и кастуем её в класс
+            GraphVertex startVertex = FindVertex(startVert);
+
+            // Заполняем весь словарь. Метки изначально ставим максимальные
+            foreach (var vertex in VertexEdges.Keys)
+            {
+                listMarksOfVertices.Add(vertex, int.MaxValue);
+                path.Add(vertex, null);
+            }
+            // Стартовую метку помечаем как 0
+            listMarksOfVertices[startVertex] = 0;
+
+            // Лист для хранения списка вершин
+            List<GraphVertex> vertexWay = new List<GraphVertex>();
+            // Алгоритм требует, чтобы первой вершиной в списке стояла НАЧАЛЬНАЯ ВЕРШИНА
+            vertexWay.Add(startVertex);
+            foreach (var vertex in VertexEdges.Keys)
+            {
+                // Добавленную стартовую вершину пропускаем
+                if (vertex == startVertex)
+                    continue;
+
+                // В цикле добавлем все остальные вершины
+                vertexWay.Add(vertex);
+            }
+
+
+            // Модификация для отрицательного цикла
+            GraphVertex forNegateCycle = null;
+            // Проходим по количеству вершин - 1 раз от всего количества
+            for (int i = 0; i < vertexWay.Count - 1; ++i)
+            {
+                // Метка для негативного цикла ставим null, т.к. это каждый раз новая итерация
+                forNegateCycle = null;
+
+                // Для каждой вершины
+                foreach (var vertex in vertexWay)
+                {
+                    // Просматриваем её рёбра
+                    foreach (var edge in VertexEdges[vertex])
+                    {
+                        // Если метка текущей вершины меньше бесконечности, то
+                        if (listMarksOfVertices[vertex] < int.MaxValue)
+                        {
+                            // Если метка конечной вершины больше, чем сумма метки текущей вершины и веса ребра
+                            if (listMarksOfVertices[edge.SecondVertex] > listMarksOfVertices[vertex] + edge.EdgeWeight)
+                            {
+                                // Присваиваем конечной вершине новую метку
+                                listMarksOfVertices[edge.SecondVertex] = listMarksOfVertices[vertex] + edge.EdgeWeight;
+                                //Math.Max(int.MinValue, listMarksOfVertices[vertex] + edge.EdgeWeight); 
+                                // Если нужно предотвратить переполнение, т.е. если цикл окажется слишком большой
+
+                                // Посколько изменили метку, то запоминаем путь
+                                path[edge.SecondVertex] = vertex;
+
+                                // Предполагаем, что это негативный цикл
+                                forNegateCycle = edge.SecondVertex;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Если цикл так и остался null
+            if (forNegateCycle == null)
+            {
+                Console.WriteLine("Нет отрицательного цикла");
+
+                // Выводим полученные длины коротких путей
+                foreach (var vertex in listMarksOfVertices)
+                {
+                    Console.Write(vertex + " ");
+                }
+
+                Console.WriteLine();
+
+            }
+            else
+            {
+                GraphVertex currentNegateVertex = forNegateCycle;
+
+                // Цикл нужен как бы для раскрытия негативного цикла, потому что в начале у нас есть только индикатор негативного цикла,
+                // который частью цикла может и не быть
+                for (int i = 0; i < vertexWay.Count; ++i)
+                {
+                    currentNegateVertex = path[currentNegateVertex];
+                }
+
+                List<GraphVertex> negatePath = new List<GraphVertex>();
+                // В цикле пытаемся понять какой у нас отрицательный цикл
+                for (GraphVertex cur = currentNegateVertex; ;)
+                {
+                    // Добавляем текущую вершину
+                    negatePath.Add(cur);
+
+                    // Если текущая вершина совпала с ИЗНАЧАЛЬНОЙ вершиной негативного цикла, т.е.
+                    // с вершиной, которую мы нашли в преддыдущем цикле
+                    // и в листе с вершинами в негативном пути уже больше двух вершин, то выходим из цикла
+                    if (cur == currentNegateVertex && negatePath.Count > 1)
+                        break;
+
+                    // иначе идём дальше по пути
+                    cur = path[cur];
+                }
+
+                // Переворачиваем лист с негативным путём, чтобы получить адекватный негативный путь для вывода
+                negatePath.Reverse();
+                Console.Write("Negate Cycle : ");
+                foreach (var item in negatePath)
+                {
+                    Console.Write(item + " ");
+                }
+            }
+
+            // Индикация для выводящих функций.
+            // При true не будет искать короткие пути между вершинами, т.к. нет смысла.
+            return forNegateCycle == null ? false : true;
+        }
+
+        //IV b - В графе нет циклов отрицательного веса.       - 13. Вывести кратчайшие пути из вершины u до v1 и v2.
+        public void Task_IV_B_Ford_Bellman__Floyd(string startVertex, string vertex_1, string vertex_2)
+        {
+            // Массив для хранения двух конечных вершин
+            string[] arrOfVertices = { vertex_1, vertex_2 };
+
+            // Инициализируем путь словари для пути и меток вершин
+            Dictionary<GraphVertex, GraphVertex> path = new Dictionary<GraphVertex, GraphVertex>();
+            Dictionary<GraphVertex, int> listMarksOfVertices = new Dictionary<GraphVertex, int>();
+
+            Ford_Bellman(startVertex, ref listMarksOfVertices, ref path);
+
+            for (int i = 0; i < 2; ++i)
+            {
+                // Если метка у конечной вершины равна MaxValue, значит пути в неё нет
+                if (listMarksOfVertices[FindVertex(arrOfVertices[i])] == int.MaxValue)
+                {
+                    Console.WriteLine($"Пути из {startVertex} в {arrOfVertices[i]} нет!");
+                }
+                else
+                {
+                    FordBellman_Print_Helper(path, FindVertex(startVertex), FindVertex(arrOfVertices[i]));
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        //IV c - В графе могут быть циклы отрицательного веса. - 9.  Вывести длины кратчайших путей для всех пар вершин.
+        public void Task_IV_C_Ford_Bellman__Floyd()
+        {
+            // Лист всех вершин
+            List<GraphVertex> arrOfVertices = VertexEdges.Keys.ToList();
+
+            // Инициализируем путь словари для пути и меток вершин
+            Dictionary<GraphVertex, GraphVertex> path = new Dictionary<GraphVertex, GraphVertex>();
+            Dictionary<GraphVertex, int> listMarksOfVertices = new Dictionary<GraphVertex, int>();
+
+            // Проходим по вершинам
+            for(int i=0; i< arrOfVertices.Count; i++)
+            {
+                Console.WriteLine("=============================");
+                Console.WriteLine($"Current Vertex is {arrOfVertices[i]}");
+
+                // Вызываем алгоритм
+                bool isNegate = Ford_Bellman_NegateCycle(arrOfVertices[i].Name, ref listMarksOfVertices, ref path);
+
+                // Если алгоритм нашёл отрицательный цикл, 
+                if (isNegate == true)
+                {
+                    // то пропускаем эту итерацию
+                    Console.WriteLine("В данном цикле есть отрицательный цикл!");
+                    continue;
+                }
+
+                // Иначе проходим по все парным вершинам
+                for (int j = 0; j < arrOfVertices.Count; j++)
+                {
+                    // Исключаем вывод пути к самому себе
+                    if (i == j)
+                        continue;
+
+                    // Исключаем вывод пути вершинам, к которым нет пути
+                    if (path[arrOfVertices[j]] == null)
+                        continue;
+
+                    // Если метка у конечной вершины равна MaxValue, значит пути в неё нет
+                    if (listMarksOfVertices[arrOfVertices[i]] == int.MaxValue)
+                    {
+                        Console.WriteLine($"Пути из {arrOfVertices[i]} в {arrOfVertices[j]} нет!");
+                    }
+                    else
+                    {
+                        // Выводим путь
+                        FordBellman_Print_Helper(path, arrOfVertices[i], arrOfVertices[j]);
+                    }
+
+                    Console.WriteLine();
+                }
+                Console.WriteLine("=============================");
+
+                // Чистим словари для следующей итерации
+                listMarksOfVertices.Clear();
+                path.Clear();
+            }
+        }
+
+        // Функция для печати пути из одной вершины в другую алгоритма
+        public void Ford_Bellman_PrintWay(string startVertex, string finalVertex, bool negateCycleVersion = false)
+        {
+            // Инициализируем словари для алгоритма
+            Dictionary<GraphVertex, GraphVertex> path = new Dictionary<GraphVertex, GraphVertex>();
+            Dictionary<GraphVertex, int> listMarksOfVertices = new Dictionary<GraphVertex, int>();
+
+            // Выбираем версию алгоритма
+            if (negateCycleVersion == false)
+                Ford_Bellman(startVertex, ref listMarksOfVertices, ref path);
+            else
+            {
+                // Если после работы Negate версии найден негативный цикл, то выходим из функции. Печатать нечего.
+                bool hasNegateCycle = Ford_Bellman_NegateCycle(startVertex, ref listMarksOfVertices, ref path);
+
+                if (hasNegateCycle == true)
+                    return;
+            }
+
+            // Если метка у конечной вершины равна MaxValue, значит пути в неё нет
+            if (listMarksOfVertices[FindVertex(finalVertex)] == int.MaxValue)
+            {
+                Console.WriteLine("Пути нет!");
+            }
+            else
+            {
+                FordBellman_Print_Helper(path, FindVertex(startVertex), FindVertex(finalVertex));
+            }
+        }
+
+        // Функция для вывода пути
+        private void FordBellman_Print_Helper(Dictionary<GraphVertex, GraphVertex> path, GraphVertex startVertex, GraphVertex finalVertex)
+        {
+            // Лист для текущего пути
+            List<GraphVertex> currentPath = new List<GraphVertex>();
+            // Прыгаем по словарю path для нахождения пути
+            for (GraphVertex vert = finalVertex; vert != startVertex;)
+            {
+                // Записываем в текущий путь
+                currentPath.Add(vert);
+                // Обновляем вершину для прыжков по ключам
+                vert = path[vert];
+            }
+
+            // Переворачиваем массив с путём
+            currentPath.Reverse();
+
+            // Выводим путь
+            Console.Write($"Путь из {startVertex} в {finalVertex}: ");
+            Console.Write(startVertex + " ");
+            foreach (var item in currentPath)
+            {
+                Console.Write(item + " ");
+            }
+        }
         #endregion
 
         #endregion
