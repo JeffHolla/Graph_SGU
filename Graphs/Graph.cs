@@ -439,6 +439,45 @@ namespace Graphs.Graphs
 
         #region Tasks
 
+        public static Graph CombineTwoOrientedGraphs(Graph graph_1, Graph graph_2)
+        {
+            Graph combinedGraph = new Graph(graph_1);
+
+            var pairs = graph_2.VertexEdges;
+
+            //foreach (var pair in pairs)
+            //{
+            //    if (pairs.ContainsKey(pair.Key) == false)
+            //        combinedGraph.AddVertex(pair.Key.Name);
+
+            //    foreach(var edge in graph_2.VertexEdges[pair.Key])
+            //    {
+            //        if (graph_1.VertexEdges[pair.Key].Contains(edge) == false)
+            //        {
+            //            combinedGraph.AddEdgeDict(pair.Key.Name, edge.SecondVertex.Name, true, edge.EdgeWeight);
+            //        }
+            //    }
+            //}
+
+            foreach (var pair in pairs)
+            {
+                if (combinedGraph.VertexEdges.ContainsKey(pair.Key) == false)
+                    combinedGraph.AddVertex(pair.Key.Name);
+
+                foreach (var edge in graph_2.VertexEdges[pair.Key])
+                {
+                    foreach (var item in combinedGraph.VertexEdges)
+                        Console.WriteLine(ReferenceEquals(pair.Key, item.Key));
+                    //if (combinedGraph.VertexEdges[pair.Key].Contains(edge) == false)
+                    //{
+                    //    combinedGraph.AddEdgeDict(pair.Key.Name, edge.SecondVertex.Name, true, edge.EdgeWeight);
+                    //}
+                }
+            }
+
+            return combinedGraph;
+        }
+
         #region Task_IA()
         // Task Ia - 1 -- Определить, существует ли вершина, в которую есть дуга из вершины u, но нет из v. Вывести такую вершину.
         public void Task_IA()
@@ -727,7 +766,7 @@ namespace Graphs.Graphs
                     {
                         path[edge.SecondVertex] = v;
 
-                        // Вычисляем расстояние
+                        // Вычисляем расстояние в количестве рёбер
                         dist[edge.SecondVertex] = dist[v] + 1;
 
                         marks[edge.SecondVertex] = true;
@@ -742,6 +781,7 @@ namespace Graphs.Graphs
             //    Console.WriteLine("Error! Path was not found!");
             //}
 
+            // Выводим путь
             foreach (var vertexEnd in VertexEdges.Keys)
             {
                 List<GraphVertex> path_current = new List<GraphVertex>();
@@ -770,7 +810,7 @@ namespace Graphs.Graphs
 
 
 
-            //
+            // Выводим количество рёбер во все остальные места
             foreach (var item in dist)
             {
                 Console.Write(item.Key + " : " + item.Value + "| ");
@@ -1162,6 +1202,122 @@ namespace Graphs.Graphs
             return listMarksOfVertices;
         }
 
+        public Dictionary<GraphVertex, int> DijkstraWithWay(string startVert, ref Dictionary<GraphVertex, GraphVertex> path)
+        {
+            // Стартовая вершина
+            GraphVertex startVertex = FindVertex(startVert);
+
+            // Создаём копию графа.
+            // В дальнейшем будем работать с копией списка смежности из копии графа потому что там удобнее удаление вершин :)
+            Graph graphCopy = new Graph(this);
+
+            // Словарь для меток. Первый параметр - вершина, второй - её метка.
+            Dictionary<GraphVertex, int> listMarksOfVertices = new Dictionary<GraphVertex, int>();
+            // Заполняем весь словарь. Метки изначально ставим максимальные
+            foreach (var vertex in graphCopy.VertexEdges.Keys)
+            {
+                listMarksOfVertices.Add(vertex, int.MaxValue);
+                path.Add(vertex, null);
+            }
+
+            // Стартовую метку помечаем как 0
+            listMarksOfVertices[startVertex] = 0;
+
+            // Очередь не подходит т.к. нам нужно выбирать вершину для перехода по наименьшему пути
+            // Словарь для вершин, которые нам нужно пройти
+            // Фактически этот словарь нужен для сохранения других вершин, если в текущих вершинах тупик.
+            // Обновляется в случае, если есть путь дальше
+
+            // Создаём список из словарей, которые нам нужно пройти.
+            // Словарь нужен для сохранения вершин и путей к ним от текущей.
+            // Лист со словарём реализуют "уровневость" запоминания прохода по графу.
+            // С помощью него мы можем возвращаться практически к основанию графа, в случае, если пути дальше не будет.
+            List<Dictionary<GraphVertex, int>> vertexWay = new List<Dictionary<GraphVertex, int>>();
+            // Инициализируем нулевой уровень - стартовая вершина
+            vertexWay.Add(new Dictionary<GraphVertex, int>());
+            // Заполняем возможные для посещения вершины от стартовой
+            foreach (var edge in graphCopy.VertexEdges[startVertex])
+            {
+                vertexWay[0].Add(edge.SecondVertex, edge.EdgeWeight);
+            }
+
+            // Текущая вершина для обозначения вершины, с которой работаем на данный момент
+            GraphVertex currentVertex = startVertex;
+
+            // Инициализируем глубину уровней
+            int dephtOfVertices = 0;
+
+            // Пока есть пути, в которые мы можем пойти или пока есть вершины, которые мы не посетили
+            while (vertexWay.Count != 0 && graphCopy.VertexEdges.Count != 0)
+            {
+                // Высчитываем по алгоритму минимальный вес до вершины
+                foreach (var edge in graphCopy.VertexEdges[currentVertex])
+                {
+                    // Если сумма ребра и текущей метки меньше, чем метка конечной вершины, то заменяем метку конечной вершины этой суммой
+                    if (edge.EdgeWeight + listMarksOfVertices[currentVertex] < listMarksOfVertices[edge.SecondVertex])
+                    {
+                        listMarksOfVertices[edge.SecondVertex] = edge.EdgeWeight + listMarksOfVertices[currentVertex];
+                        path[edge.SecondVertex] = currentVertex;
+                    }
+                }
+
+                // Если от текущей вершины есть другие пути
+                if (graphCopy.VertexEdges[currentVertex].Count != 0)
+                {
+                    // Если есть другие пути, то поднимаемся на новый уровень
+                    dephtOfVertices += 1;
+                    // Инициализируем новый уровень
+                    vertexWay.Add(new Dictionary<GraphVertex, int>());
+                    // Создаём новый список возможных путей
+                    foreach (var edge in graphCopy.VertexEdges[currentVertex])
+                    {
+                        vertexWay[dephtOfVertices].Add(edge.SecondVertex, edge.EdgeWeight);
+                    }
+
+                    // Сортируем по значению(по int) и записываем обратно в словарь
+                    vertexWay[dephtOfVertices] = vertexWay[dephtOfVertices].
+                                                OrderBy(vertex => vertex.Value).
+                                                ToDictionary(pair => pair.Key, pair => pair.Value);
+
+                    // Удаляем из списка смежности копии графа(для сохранности данных и удобного удаления) текущую вершину и считаем, что посетили её.
+                    graphCopy.RemoveVertex(currentVertex.Name);
+                    // Если больше не осталось вершин в списке смежности, то выходим из цикла.
+                    if (graphCopy.VertexEdges.Count == 0)
+                        break;
+
+                    // Т.к. мы отсортировали возможные пути, то берём первый, т.к. он будет самым минимальным
+                    currentVertex = vertexWay[dephtOfVertices].First().Key;
+                    // Убираем из возможных путей текущий путь, чтобы не уйти в рекурсию
+                    vertexWay[dephtOfVertices].Remove(currentVertex);
+                }
+                else // Если из текущей вершиные нет путей, то
+                {
+                    // Удаляем из списка смежности копии графа(для сохранности данных и удобного удаления) текущую вершину и считаем, что посетили её.
+                    graphCopy.RemoveVertex(currentVertex.Name);
+                    // Если больше не осталось вершин в списке смежности, то выходим из цикла.
+                    if (graphCopy.VertexEdges.Count == 0)
+                        break;
+
+                    // Если же на текущем уровне, т.е. от текущей вершины некуда идти, то спускаемся на уровень ниже,
+                    // пока не найдём уровень, на котором есть доступные пути.
+                    while (dephtOfVertices >= 0 && vertexWay[dephtOfVertices].Keys.Count == 0)
+                    {
+                        vertexWay[dephtOfVertices].Clear();
+                        dephtOfVertices -= 1;
+                    }
+
+                    // На случай, если есть недостижимые вершины, то глубина уйдёт в минус => прерываем цикл
+                    if (dephtOfVertices < 0)
+                        break;
+
+                    currentVertex = vertexWay[dephtOfVertices].First().Key;
+                    vertexWay[dephtOfVertices].Remove(currentVertex);
+                }
+            }
+
+            return listMarksOfVertices;
+        }
+
         // Вывод кратких путей от заданной вершины во все остальные
         public void Print_Dijkstra(string startVertex)
         {
@@ -1196,135 +1352,66 @@ namespace Graphs.Graphs
         }
 
 
-        // Dnt wrk
-        public void Task_IV_A_Dijkstra_6__MATRIX(string startVert)
+        #region Victoria_15
+        // Вывести кратчайшие пути из вершин u1 и u2 до v.
+        public void Victoria_IV_15_Dijkstra(string vertex, string u1, string u2)
         {
-            GraphVertex startVertex = FindVertex(startVert);
+            // Инициализируем путь словари для пути и меток вершин
+            Dictionary<GraphVertex, GraphVertex> path = new Dictionary<GraphVertex, GraphVertex>();
+            Dictionary<GraphVertex, int> listMarksOfVertices = new Dictionary<GraphVertex, int>();
 
-            int int_startVertex = int.Parse(startVert.Remove(0, 1));
+            DijkstraWithWay(vertex, ref path);
 
-            bool[] marksInt = new bool[VertexEdges.Keys.Count];
-
-            marksInt[int_startVertex] = true;
-
-            //создаем матрицу с
-            int[,] c_matrix = ToMatrix(0, true);
-            for (int i = 0; i < VertexEdges.Keys.Count; ++i)
+            // Лист для текущего пути
+            List<GraphVertex> currentPath = new List<GraphVertex>();
+            // Прыгаем по словарю path для нахождения пути
+            //currentPath.Add(FindVertex(u1));
+            for (GraphVertex vert = FindVertex(u1); vert != FindVertex(vertex);)
             {
-                for (int j = 0; j < VertexEdges.Keys.Count; ++j)
-                {
-                    if (c_matrix[i, j] == 0)
-                    {
-                        c_matrix[i, j] = int.MaxValue;
-                    }
-                }
+                // Записываем в текущий путь
+                currentPath.Add(vert);
+                // Обновляем вершину для прыжков по ключам
+                vert = path[vert];
             }
 
-            //создаем матрицы d и p
-            long[] d = new long[VertexEdges.Keys.Count]; //все возможные пути из v
-            int[] p = new int[VertexEdges.Keys.Count];  //кратчайшие маршруты
-            for (int i = 0; i < VertexEdges.Keys.Count; i++) //цикл записывает в массив d все возможные пути из вершины v
-                                                             // и кратчайшие маршруты в доступные вершины в массив p из вершины v
+            // Переворачиваем массив с путём
+            currentPath.Reverse();
+
+            // Выводим путь
+            Console.Write($"Путь из {vertex} в {u1}: ");
+            Console.Write(vertex + " ");
+            foreach (var item in currentPath)
             {
-                if (i != int_startVertex)
-                {
-                    d[i] = c_matrix[int_startVertex, i];
-                    p[i] = int_startVertex;
-                }
+                Console.Write(item + " ");
             }
 
-            // Проходим по каждой вершине
-            for (int i = 0; i < VertexEdges.Keys.Count - 1; i++)
-            {
-                // В первом цикле ищем вершину с самым маленьким путём и переходим на неё
-                long min = int.MaxValue;
-                int w = 0; // новая вершина с наименьшим значением веса(длина дороги и т.д.), на которую мы в последствии перейдём
-                for (int u = 0; u < VertexEdges.Keys.Count; u++)
-                {
-                    if (marksInt[u] && min > d[u])
-                    {
-                        min = d[u];
-                        w = u;
-                    }
-                }
-                marksInt[w] = false; //помечаем вершину w как помеченную
+            Console.WriteLine();
 
-                // Для каждой вершины, которую ещё не посетили(nov[u]), определяем кратчайший путь от
-                // источника(w) до этой вершины
-                for (int u = 0; u < VertexEdges.Keys.Count; u++)
-                {
-                    long distance = d[w] + c_matrix[w, u];// long - чтобы не переполнить int, если начнёт пребавляться int.MaxValue из c[w,u]
-                    if (marksInt[u] && d[u] > distance)
-                    {
-                        d[u] = distance;
-                        p[u] = w;
-                    }
-                }
+            // Лист для текущего пути
+            currentPath.Clear();
+            // Прыгаем по словарю path для нахождения пути
+            for (GraphVertex vert = FindVertex(u2); vert != FindVertex(vertex);)
+            {
+                // Записываем в текущий путь
+                currentPath.Add(vert);
+                // Обновляем вершину для прыжков по ключам
+                vert = path[vert];
             }
 
-            Console.WriteLine("Длина кратчайшие пути от вершины {0} до вершины", int_startVertex);
-            for (int i = 0; i < VertexEdges.Keys.Count; i++)
+            // Переворачиваем массив с путём
+            currentPath.Reverse();
+
+            // Выводим путь
+            Console.Write($"Путь из {vertex} в {u2}: ");
+            Console.Write(vertex + " ");
+            foreach (var item in currentPath)
             {
-                if (i != int_startVertex)
-                {
-                    Console.Write("{0} равна {1}, ", i, d[i]);
-                    Console.Write("путь ");
-                    if (d[i] != int.MaxValue)
-                    {
-                        Stack items = new Stack();
-                        WayDijkstr(int_startVertex, i, p, ref items);
-                        while (items.Count != 0)
-                        {
-                            Console.Write("{0} ", items.Pop());
-                        }
-                    }
-                }
-                Console.WriteLine();
+                Console.Write(item + " ");
             }
+
         }
 
-
-        //public void Dijkstr(int v)
-        //{
-        //    graph.NovSet();//помечаем все вершины графа как непросмотренные
-        //    int[] p;
-        //    long[] d = graph.Dijkstr(v, out p); //запускаем алгоритм Дейкстры
-        //                                        //анализируем полученные данные и выводим их на экран
-        //    Console.WriteLine("Длина кратчайшие пути от вершины {0} до вершины", v);
-        //    for (int i = 0; i < graph.Size; i++)
-        //    {
-        //        if (i != v)
-        //        {
-        //            Console.Write("{0} равна {1}, ", i, d[i]);
-        //            Console.Write("путь ");
-        //            if (d[i] != int.MaxValue)
-        //            {
-        //                Stack items = new Stack();
-        //                graph.WayDijkstr(v, i, p, ref items);
-        //                while (items.Count != 0)
-        //                {
-        //                    Console.Write("{0} ", items.Pop());
-        //                }
-        //            }
-        //        }
-        //        Console.WriteLine();
-        //    }
-        //}
-
-        //восстановление пути от вершины a до вершины b для алгоритма Дейкстры
-        public void WayDijkstr(int a, int b, int[] p, ref Stack items)
-        {
-            items.Push(b); //помещаем вершину b в стек
-            if (a == p[b]) //если предыдущей для вершины b является вершина а, то
-            {
-                items.Push(a); //помещаем а в стек и завершаем восстановление пути
-            }
-            else //иначе метод рекурсивно вызывает сам себя для поиска пути
-            { //от вершины а до вершины, предшествующей вершине b
-                WayDijkstr(a, p[b], p, ref items);
-            }
-        }
-
+        #endregion
 
         #endregion
 
@@ -1598,7 +1685,7 @@ namespace Graphs.Graphs
             Dictionary<GraphVertex, int> listMarksOfVertices = new Dictionary<GraphVertex, int>();
 
             // Проходим по вершинам
-            for(int i=0; i< arrOfVertices.Count; i++)
+            for (int i = 0; i < arrOfVertices.Count; i++)
             {
                 // Чистим словари для следующей итерации
                 listMarksOfVertices.Clear();
@@ -1700,6 +1787,359 @@ namespace Graphs.Graphs
             {
                 Console.Write(item + " ");
             }
+        }
+
+        #region Victoria_Bellman
+
+        // 2 - Определить, есть ли в графе вершина, минимальные стоимости путей от которой до остальных в сумме не превосходят P.
+        public void Victoria_IV_2_Bellman(int P)
+        {
+            List<Tuple<GraphVertex, int>> graphVerticesAndSums = new List<Tuple<GraphVertex, int>>();
+
+            Dictionary<GraphVertex, GraphVertex> path = new Dictionary<GraphVertex, GraphVertex>();
+            Dictionary<GraphVertex, int> listMarksOfVertices = new Dictionary<GraphVertex, int>();
+
+            foreach (var vertex in VertexEdges.Keys)
+            {
+                Ford_Bellman(vertex.Name, ref listMarksOfVertices, ref path);
+
+                graphVerticesAndSums.Add(new Tuple<GraphVertex, int>(vertex, listMarksOfVertices.
+                                                                              Where(pair => pair.Value != int.MaxValue).
+                                                                              Sum(v => v.Value)));
+                listMarksOfVertices.Clear();
+                path.Clear();
+                Console.WriteLine();
+            }
+
+            foreach (var item in graphVerticesAndSums)
+            {
+                Console.WriteLine(item + " ");
+            }
+
+            Console.WriteLine($"Вершины и их минимальные стоимости, которые удовлетворяют условию (<={P}):");
+            foreach (var item in graphVerticesAndSums.Where(pair => pair.Item2 <= P))
+            {
+                Console.WriteLine(item + " ");
+            }
+
+            Console.WriteLine($"");
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Потоковый алгоритм - Ford Falkerson
+        //Потоковый алгоритм
+        /*
+         * Классное объяснение. Тут и рисунки, и определения
+         * https://progr-system.ru/wp-content/uploads/Math/МАПКС-13-ПотокиНахождениеМаксПотока.pdf
+         * 
+        Сетью называется орграф, в котором
+         * 1) каждому ребру e приписано положительное число C(e) , называемое ПРОПУСКНОЙ СПОСОБНОСТЬЮ ребра;
+         * 2) выделены две вершины s и t, называемые соответственно ИСТОЧНИКОМ и СТОКОМ, при этом E^+ (s) = E^- (t) = ∅ - то есть 
+         * из источника ребра только выходят, а в сток только входят.
+         * В данной задаче основным параметром на дугах сети является C𝑖𝑗 – пропускная способность. 
+         * Пропускная способность показывает, сколько единиц потока может быть передано по дугам сети.
+         * C - матрица вершин, пересечение которых - пропускная способность - Capacity
+
+        
+        Функция f называется потоком в сети N, если она удовлетворяет условиям:
+        * (1) ОГРАНИЧЕННОСТИ: поток по любой дуге сети не превосходит пропускной способности этой дуги: 0 ≤ 𝑓(𝑒) ≤ 𝑐(𝑒) для каждой дуги e;
+        * (2) СОХРАНЕНИЯ: суммарный поток, заходящий в любую вершину сети
+        * (кроме истока и стока), равен суммарному потоку, выходящему из
+        * этой вершины: 𝑓^+ (𝑥) = 𝑓^− (𝑥) для каждой внутренней вершины x. 
+        
+        * Дуга сети называется насыщенной, если поток по этой дуге равен пропускной способности этой дуги,  т. е. 𝑓(𝑒) = 𝑐(𝑒)
+        
+        * Разрезом сети называется множество дуг, удаление которых из сети 
+        * приводит к тому, что исток и сток оказываются несвязанными.
+         
+        * Пропускной способностью разреза называется число, равное сумме 
+        * пропускных способностей дуг этого разреза. 
+        * Разрез называется минимальным, если имеет наименьшую пропускную способность.
+         
+        
+        * Условие (2-о сохранении) называется условием сохранения потока. 
+        * Так как каждое ребро является входящим для одной вершины и выходящим для другой, то 𝑓^− (𝑠) = 𝑓^+ (𝑡)
+        * Эта величина обозначается через 𝑀(𝑓) и называется ВЕЛИЧИНОЙ ПОТОКА. В примере на рисунке M ( f ) = 4. 
+
+        * Задача о максимальном потоке состоит в том, чтобы 
+        * для данной сети найти поток наибольшей величины
+       
+        
+        * 
+        */
+
+        public void PrintListEdges_Ford_Fulk()
+        {
+            foreach (var keyValue in flowsOfEdges)
+            {
+                Console.Write(keyValue.Key + " : ");
+                foreach (var tuple in flowsOfEdges[keyValue.Key])
+                {
+                    Console.Write(tuple.Item1 + "{" + tuple.Item2 + "|" + tuple.Item3 + "}, ");
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        // Фактически, является расширением обычного словаря.
+        // Теперь это не просто Вершина-Список рёбер, а
+        // Вершина-Список рёбер с пропускной способностью в две стороны(на самом деле первое значение int - это residual Capacity
+        // оно же на русском означает пропускную способность ребра на для этого ребра на данный момент.
+        Dictionary<GraphVertex, List<Tuple<GraphEdge, int, int>>> flowsOfEdges = new Dictionary<GraphVertex, List<Tuple<GraphEdge, int, int>>>();
+        
+
+        public void Ford_Falkerson(string startVertex, string sinkVertex)
+        {
+            // Видео - лучшее объяснение алгоритма - https://www.youtube.com/watch?v=v1VgJmkEJW0
+            // Один из графов. Я не использовал обратные рёбра, поэтому у меня на 1 меньше https://www.youtube.com/watch?v=Tl90tNtKvxs
+
+
+            // Очищаем расширенный словарь Вершины-Список рёбер с пропускной способностью
+            flowsOfEdges.Clear();
+            
+            // Инициализируем путь словари для пути и меток вершин
+            foreach (var pair in VertexEdges)
+            {
+                // Создаём обычный словарь, где ключ - вершина, а значение - список из кортежей
+                flowsOfEdges.Add(pair.Key, new List<Tuple<GraphEdge, int, int>>());
+
+                // Каждое ребро, исходящее из вершины мы переписываем в кортеж и добавляем к нему ещё одно значение- 
+                // обратную пропускную способность
+                foreach (var edge in VertexEdges[pair.Key])
+                {
+                    flowsOfEdges[pair.Key].Add(new Tuple<GraphEdge, int, int>(edge, 0, edge.EdgeWeight));
+                }
+            }
+
+            // Очищаем метки посещений
+            marks.Clear();
+            foreach (var vertex in VertexEdges.Keys)
+            {
+                marks.Add(vertex, false);
+            }
+
+            // Задаём статус для DFS
+            string status = "Fail";
+
+            // Инициализируем начальную и конечную вершину
+            FinishVertex = FindVertex(sinkVertex);
+            StartVertex = FindVertex(startVertex);
+
+
+            // Переменная для хранения максимального потока
+            int MaxFlow = 0;
+            while (true)
+            {
+                //Console.WriteLine(counter);
+
+                //Очищаем метки, т.к. мы каждый раз заного проходим по графу
+                marks.Clear();
+                foreach (var vertex in VertexEdges.Keys)
+                {
+                    marks.Add(vertex, false);
+                }
+                // Очищаем путь по той же причине
+                toGetPath.Clear();
+                // Обновляем статус до начального состояния
+                status = "Fail";
+
+                // DFS =====================
+                // Инициализируем минимальное значение
+                int minFlowValue = int.MaxValue;
+                DFSForFord_Fulkerson(StartVertex, FinishVertex, ref status, ref minFlowValue);
+
+                // Если пути не было найдено, то выходим
+                if (status == "Fail")
+                {
+                    break;
+                }
+
+                // Если же был, то прибавляем минимальный поток к общему счётчику потока
+                MaxFlow += minFlowValue;
+
+                // Инициализируем путь
+                List<GraphVertex> path_current = new List<GraphVertex>();
+                // Временная переменная только для того, чтобы сохранять путь и прыгать по toGetPath
+                var vertex_tmp = FinishVertex;
+                while (vertex_tmp != StartVertex)
+                {
+                    path_current.Add(vertex_tmp);
+                    vertex_tmp = toGetPath[vertex_tmp];
+                }
+
+                // Переворачиваем путь, т.к. он записан с конца
+                path_current.Reverse();
+
+                // Переменная для замены одного кортежа на другой кортеж
+                Tuple<GraphEdge, int, int> exchange = null;
+
+                // Переменная для запоминания индекса для замены 
+                int indexToChange = int.MaxValue;
+
+                //Добавляем в путь начальную вершину
+                path_current.Insert(0, StartVertex);
+
+
+                // В этом цикле мы обновляем пропускную способность рёбер по Форду-Фалкерсону
+                // Для каждой вершины сравниваем по парам
+                for (int i = 0; i < path_current.Count - 1; ++i)
+                {
+                    // Для каждого кортежа ищем ребро, по которому шли
+                    foreach (var tuple in flowsOfEdges[path_current[i]])
+                    {
+                        // Если это нужное нам ребро
+                        if (tuple.Item1.SecondVertex == path_current[i + 1])
+                        {
+                            // Сохраняем нужный нам кортеж и его индекс
+                            exchange = new Tuple<GraphEdge, int, int>(tuple.Item1, tuple.Item2 + minFlowValue, tuple.Item3 - minFlowValue);
+                            indexToChange = flowsOfEdges[path_current[i]].FindIndex(item => item == tuple);
+                        }
+                    }
+                    // Если мы не нашли нужный нам кортеж и произошла ошибка, то пропускаем итерацию
+                    if (indexToChange == -1)
+                        continue;
+                    // Сохраняем изменённый кортеж.
+                    // Фактически обновляем рёбра
+                    flowsOfEdges[path_current[i]][indexToChange] = exchange;
+                }
+
+                // Выводим рёбра
+                PrintListEdges_Ford_Fulk();
+                Console.WriteLine($"Минимальное значение потока ребра(оно же residual Capacity, оно же остаточная ёмкость), найденное на данном цикле - {minFlowValue}");
+                Console.WriteLine($"Общее значение максимального потока - {MaxFlow}");
+                Console.WriteLine();
+                
+                // Находим вершины для удаления и удаляем рёбра, ёмкость которых равна нулю
+                List<GraphVertex> verticesToDel = new List<GraphVertex>();
+                // Для каждой вершины 
+                foreach (var vertex in flowsOfEdges.Keys)
+                {
+                    // Лист для копии, т.к. изменять в цикле мы не можем 
+                    List<Tuple<GraphEdge, int, int>> listOfTuplesToDel = new List<Tuple<GraphEdge, int, int>>();
+                    // Ищем кортежи, в которых ёмкость равна нулю
+                    foreach (var tuple in flowsOfEdges[vertex])
+                    {
+                        if (tuple.Item3 == 0)
+                        {
+                            // Добавляем их в список
+                            listOfTuplesToDel.Add(tuple);
+                        }
+                    }
+
+                    // Для каждой вершины удаляем из списка кортежи, в которых ёмкость равна нулю
+                    foreach (var tuple in listOfTuplesToDel)
+                    {
+                        flowsOfEdges[vertex].Remove(tuple);
+                    }
+
+                    // Если у вершины больше нет рёбер, то добавляем её в список на удаление вершин
+                    if (flowsOfEdges[vertex].Count == 0)
+                    {
+                        if (vertex != FinishVertex && vertex != StartVertex)
+                            verticesToDel.Add(vertex);
+                    }
+                }
+
+
+                // Удаление вершин из списка по принципу удаления вершины из графа
+                // Т.е. удаляются сначала все связи с этой вершиной, а потом сама вершина
+                foreach (var toDel in verticesToDel)
+                {
+                    //flowsOfEdges.Remove(item);
+
+                    foreach (var vertex in flowsOfEdges.Keys.ToList())
+                    {
+                        List<Tuple<GraphEdge, int, int>> copyOfTuple = new List<Tuple<GraphEdge, int, int>>(flowsOfEdges[vertex]);
+                        foreach (var tuple in flowsOfEdges[vertex])
+                        {
+                            if (vertex != toDel)
+                            {
+                                if (tuple.Item1.SecondVertex == toDel)
+                                {
+                                    copyOfTuple.Remove(tuple);
+                                }
+                            }
+                        }
+                        flowsOfEdges[vertex] = copyOfTuple;
+                    }
+
+                    flowsOfEdges.Remove(toDel);
+
+                }
+            }
+        }
+
+        private void DFSForFord_Fulkerson(GraphVertex vertex, GraphVertex from, ref string result, ref int minValue)
+        {
+            // Если мы были в этой вершине, то возвращаемся назад
+            if (marks[vertex] == true)
+            {
+                return;
+            }
+            // отмечаем, что мы были в этой вершине
+            marks[vertex] = true;
+            // запоминаем путь
+            toGetPath[vertex] = from;
+
+            // Если мы достигли конечной вершины, то значит, что мы нашли путь
+            if (vertex == FinishVertex)
+            {
+                result = "Path was found!";
+                return;
+            }
+            
+            // Выбираем ребро с максимальной ёмкостью
+            var tmp = flowsOfEdges[vertex].OrderBy(tuple => -tuple.Item3).Where(tuple => tuple.Item3 > 0).ToList();
+
+            // Если такого ребра нет, то возращаемся на ступень назад
+            if (tmp.Count == 0)
+                return;
+
+            // Проходим по вершинам далее
+            foreach (var vertex_out_tuple in tmp)
+            {
+                // Если мы нашли значение меньше и ещё не нашли путь к конечной вершине
+                if (minValue > vertex_out_tuple.Item3 && result != "Path was found!")
+                {
+                    minValue = vertex_out_tuple.Item3;
+                }
+
+                DFSForFord_Fulkerson(vertex_out_tuple.Item1.SecondVertex, vertex, ref result, ref minValue);
+            }
+        }
+
+        // Обычный вывод пути с помощью метода VertexIn-VertexOut
+        private List<GraphVertex> PrintPathToVertex_DFS_2(string finishVertex)
+        {
+            List<GraphVertex> path_current = new List<GraphVertex>();
+
+
+            var vertex_tmp = FindVertex(finishVertex);
+
+            if (vertex_tmp != StartVertex)
+            {
+                while (vertex_tmp != StartVertex)
+                {
+                    path_current.Add(vertex_tmp);
+                    vertex_tmp = toGetPath[vertex_tmp];
+                }
+            }
+
+            // Переворачиваем путь, т.к. шли с конца
+            path_current.Reverse();
+
+            Console.WriteLine(StartVertex + "->" + finishVertex + ":");
+            foreach (var item in path_current)
+            {
+                Console.WriteLine(item);
+            }
+            Console.WriteLine("---------------");
+
+            return path_current;
         }
         #endregion
 
