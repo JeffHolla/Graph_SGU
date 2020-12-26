@@ -53,12 +53,13 @@ namespace Graphs
 
             //Stream_Algorithm_Ford_Falkerson();
 
-            Test();
+            //GraphFromUnity();
 
             Console.WriteLine();
         }
 
-        static void Test()
+        // Тест Дейкстра для Unity
+        static void GraphFromUnity()
         {
             Graph graph = new Graph();
 
@@ -218,33 +219,7 @@ namespace Graphs
             graph.StartFord_Bellman("V3", negateCycleVersion: true);
             //graph.Task_IV_C_Ford_Bellman();
         }
-
-        static void CombinedGraph_Victoria()
-        {
-            Graph graph_1 = new Graph();
-            Graph graph_2 = new Graph();
-
-            graph_1.AddVertices("V1", "V2", "V3");
-            graph_2.AddVertices("V1", "V3", "V4");
-
-            graph_1.PrintVertices();
-            graph_2.PrintVertices();
-
-            graph_1.AddEdgeDict("V1", "V3", weight: 7, is_oriented: true);
-            graph_1.AddEdgeDict("V1", "V2", weight: 5, is_oriented: true);
-
-            graph_2.AddEdgeDict("V3", "V3", weight: 9, is_oriented: true);
-            graph_2.AddEdgeDict("V1", "V4", weight: 4, is_oriented: true);
-
-            graph_1.PrintListEdges();
-            graph_2.PrintListEdges();
-
-            Graph combinedGraph = Graph.CombineTwoOrientedGraphs(graph_1, graph_2);
-
-            combinedGraph.PrintListEdges();
-            combinedGraph.PrintVertices();
-        }
-
+        
         static void Task_Victoria_IV_2()
         {
             Graph graph = new Graph();

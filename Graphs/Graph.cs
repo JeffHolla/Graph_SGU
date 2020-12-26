@@ -439,45 +439,6 @@ namespace Graphs.Graphs
 
         #region Tasks
 
-        public static Graph CombineTwoOrientedGraphs(Graph graph_1, Graph graph_2)
-        {
-            Graph combinedGraph = new Graph(graph_1);
-
-            var pairs = graph_2.VertexEdges;
-
-            //foreach (var pair in pairs)
-            //{
-            //    if (pairs.ContainsKey(pair.Key) == false)
-            //        combinedGraph.AddVertex(pair.Key.Name);
-
-            //    foreach(var edge in graph_2.VertexEdges[pair.Key])
-            //    {
-            //        if (graph_1.VertexEdges[pair.Key].Contains(edge) == false)
-            //        {
-            //            combinedGraph.AddEdgeDict(pair.Key.Name, edge.SecondVertex.Name, true, edge.EdgeWeight);
-            //        }
-            //    }
-            //}
-
-            foreach (var pair in pairs)
-            {
-                if (combinedGraph.VertexEdges.ContainsKey(pair.Key) == false)
-                    combinedGraph.AddVertex(pair.Key.Name);
-
-                foreach (var edge in graph_2.VertexEdges[pair.Key])
-                {
-                    foreach (var item in combinedGraph.VertexEdges)
-                        Console.WriteLine(ReferenceEquals(pair.Key, item.Key));
-                    //if (combinedGraph.VertexEdges[pair.Key].Contains(edge) == false)
-                    //{
-                    //    combinedGraph.AddEdgeDict(pair.Key.Name, edge.SecondVertex.Name, true, edge.EdgeWeight);
-                    //}
-                }
-            }
-
-            return combinedGraph;
-        }
-
         #region Task_IA()
         // Task Ia - 1 -- Определить, существует ли вершина, в которую есть дуга из вершины u, но нет из v. Вывести такую вершину.
         public void Task_IA()
