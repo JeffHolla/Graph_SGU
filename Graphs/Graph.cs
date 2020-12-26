@@ -1088,6 +1088,7 @@ namespace Graphs.Graphs
         //}
         */
 
+        // Дейкстра с выводом пути в консоль, возвращает словарь меток, которые в свою очередь обозначают короткие пути до вершин
         public Dictionary<GraphVertex, int> Dijkstra(string startVert)
         {
             // Стартовая вершина
@@ -1190,6 +1191,18 @@ namespace Graphs.Graphs
                         dephtOfVertices -= 1;
                     }
 
+                    // Исключаем возможность ошибки фантомных путей, при удалении вершин
+                    Dictionary<GraphVertex, int> copyOfWay = new Dictionary<GraphVertex, int>(vertexWay[dephtOfVertices]);
+                    // Обновляем список возможных путей
+                    foreach (var vertex in vertexWay[dephtOfVertices])
+                    {
+                        if (graphCopy.VertexEdges.Keys.ToList().Contains(vertex.Key) == false)
+                        {
+                            copyOfWay.Remove(vertex.Key);
+                        }
+                    }
+                    vertexWay[dephtOfVertices] = copyOfWay;
+
                     // На случай, если есть недостижимые вершины, то глубина уйдёт в минус => прерываем цикл
                     if (dephtOfVertices < 0)
                         break;
@@ -1202,6 +1215,7 @@ namespace Graphs.Graphs
             return listMarksOfVertices;
         }
 
+        // Дейкстра с ссылкой на путь, возвращает словарь меток, которые в свою очередь обозначают короткие пути до вершин
         public Dictionary<GraphVertex, int> DijkstraWithWay(string startVert, ref Dictionary<GraphVertex, GraphVertex> path)
         {
             // Стартовая вершина
@@ -1305,6 +1319,17 @@ namespace Graphs.Graphs
                         vertexWay[dephtOfVertices].Clear();
                         dephtOfVertices -= 1;
                     }
+
+                    Dictionary<GraphVertex, int> copyOfWay = new Dictionary<GraphVertex, int>(vertexWay[dephtOfVertices]);
+                    // Обновляем список возможных путей
+                    foreach (var vertex in vertexWay[dephtOfVertices])
+                    {
+                        if(graphCopy.VertexEdges.Keys.ToList().Contains(vertex.Key) == false)
+                        {
+                            copyOfWay.Remove(vertex.Key);
+                        }
+                    }
+                    vertexWay[dephtOfVertices] = copyOfWay;
 
                     // На случай, если есть недостижимые вершины, то глубина уйдёт в минус => прерываем цикл
                     if (dephtOfVertices < 0)

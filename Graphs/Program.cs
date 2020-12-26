@@ -51,9 +51,53 @@ namespace Graphs
 
             //test();
 
-            Stream_Algorithm_Ford_Falkerson();
+            //Stream_Algorithm_Ford_Falkerson();
+
+            Test();
 
             Console.WriteLine();
+        }
+
+        static void Test()
+        {
+            Graph graph = new Graph();
+
+            graph.AddVertices("V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9");
+            /* Hide
+            //graph.AddEdgeDict("V0", "V1", weight: -1, is_oriented: true);
+            //graph.AddEdgeDict("V0", "V2", weight: 4, is_oriented: true);
+
+            //graph.AddEdgeDict("V1", "V2", weight: 2, is_oriented: true);
+            //graph.AddEdgeDict("V1", "V0", weight: 2, is_oriented: true);
+            //graph.AddEdgeDict("V1", "V3", weight: 2, is_oriented: true);
+
+            //graph.AddEdgeDict("V3", "V4", weight: 2, is_oriented: true);
+
+            //graph.AddEdgeDict("V5", "V0", weight: 2, is_oriented: true);
+            */
+
+            graph.AddEdgeDict("V0", "V1", is_oriented: true);
+            graph.AddEdgeDict("V0", "V2", is_oriented: true);
+            graph.AddEdgeDict("V0", "V9", is_oriented: true);
+            graph.AddEdgeDict("V0", "V6", is_oriented: true);
+
+            graph.AddEdgeDict("V1", "V2", is_oriented: true);
+            graph.AddEdgeDict("V1", "V0", is_oriented: true);
+            graph.AddEdgeDict("V1", "V3", is_oriented: true);
+
+            graph.AddEdgeDict("V2", "V7", is_oriented: true);
+
+            graph.AddEdgeDict("V3", "V4", is_oriented: true);
+
+            graph.AddEdgeDict("V5", "V0", is_oriented: true);
+
+            graph.AddEdgeDict("V7", "V8", is_oriented: true);
+
+            graph.AddEdgeDict("V8", "V4", is_oriented: true);
+
+            graph.AddEdgeDict("V9", "V7", is_oriented: true);
+
+            graph.Victoria_IV_15_Dijkstra("V5", "V4", "V4");
         }
 
         static void Stream_Algorithm_Ford_Falkerson()
