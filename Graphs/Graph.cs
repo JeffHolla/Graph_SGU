@@ -20,7 +20,7 @@ using System.Linq;
 // удаляющие вершину, -- done
 // удаляющие ребро(дугу), -- done(x2)
 
-// выводящие список смежности в файл(в том числе в пригодном для чтения конструктором формате).
+// выводящие список смежности в файл(в том числе в пригодном для чтения конструктором формате).  -- done
 
 
 //4. Должны поддерживаться как ориентированные, так и неориентированные графы. -- done
@@ -121,32 +121,6 @@ namespace Graphs.Graphs
                 AddVertex(vertex);
             }
         }
-
-        // Deprecated RemoveVertex
-        //public void RemoveVertex(string name)
-        //{
-        //    if (FindVertex(name) != null)
-        //    {
-
-        //        // Проходим по каждому ребру из удаляемой вершины
-        //        foreach (var edge in VertexEdges[FindVertex(name)])
-        //        {
-        //            // Прыгаем по конечным точкам (в GraphEdge указываются только конечная точка ребра) ребра вершины и удаляем их.
-        //            // VertexEdges[edge.SecondVertex] - прыжок в конечную вершину ребра и просмотр из этой вершины остальных рёбер
-        //            // Remove(... .Find(v => v.SecondVertex == FindVertex(name)) - поиск и удаление ребра из списка рёбер VertexEdges
-        //            VertexEdges[edge.SecondVertex].Remove(VertexEdges[edge.SecondVertex].Find(v => v.SecondVertex == FindVertex(name)));
-        //        }
-
-        //        // Находим ребро в словаре и удаляем
-        //        VertexEdges.Remove(FindVertex(name));
-
-
-        //    }
-        //    else
-        //    {
-        //        Console.WriteLine("Вершина не найдена!");
-        //    }
-        //}
 
         public void RemoveVertex(string name)
         {
@@ -536,6 +510,7 @@ namespace Graphs.Graphs
                 addedGraph.VertexEdges[vertex].Clear();
             }
 
+
             // Для каждой вершины строим дополненный рёбра
             foreach (var current_vertex in addedGraph.VertexEdges.Keys)
             {
@@ -546,11 +521,15 @@ namespace Graphs.Graphs
                     VertexesFromCur.Add(EdgeFromCur.SecondVertex);
                 }
 
+                // Проходим по каждой вершине из AddedGraph
                 foreach (var vertex_from_edges in addedGraph.VertexEdges.Keys)
                 {
                     if (VertexesFromCur.Contains(vertex_from_edges) == false && vertex_from_edges != current_vertex)
                     {
-                        addedGraph.AddEdgeDict(current_vertex.Name, vertex_from_edges.Name);
+                        // Если ещё не проведено ребро
+                        if (addedGraph.VertexEdges[current_vertex].
+                            Find(edge => edge.SecondVertex == vertex_from_edges) == null)
+                            addedGraph.AddEdgeDict(current_vertex.Name, vertex_from_edges.Name);
                     }
                 }
             }
@@ -559,7 +538,7 @@ namespace Graphs.Graphs
         }
         #endregion
 
-        #region Tasks_II_9_&_27
+        #region Tasks_II_9_&_27___DFS/BFS
         // 9.Найти путь, соединяющий вершины u и v и не проходящий через заданное подмножество вершин V.
 
         // Словарь marks для запоминания мест, где мы были
@@ -855,6 +834,8 @@ namespace Graphs.Graphs
 
             // Выбираем случайную вершину
             GraphVertex randomStartVertex = VertexEdges.Keys.ToList()[random.Next(VertexEdges.Keys.Count)];
+
+            PrimStart(randomStartVertex.Name);
         }
 
         public void PrimStart(string vertex)
@@ -1285,7 +1266,7 @@ namespace Graphs.Graphs
                     // Обновляем список возможных путей
                     foreach (var vertex in vertexWay[dephtOfVertices])
                     {
-                        if(graphCopy.VertexEdges.Keys.ToList().Contains(vertex.Key) == false)
+                        if (graphCopy.VertexEdges.Keys.ToList().Contains(vertex.Key) == false)
                         {
                             copyOfWay.Remove(vertex.Key);
                         }
@@ -1876,7 +1857,7 @@ namespace Graphs.Graphs
         // Вершина-Список рёбер с пропускной способностью в две стороны(на самом деле первое значение int - это residual Capacity
         // оно же на русском означает пропускную способность ребра на для этого ребра на данный момент.
         Dictionary<GraphVertex, List<Tuple<GraphEdge, int, int>>> flowsOfEdges = new Dictionary<GraphVertex, List<Tuple<GraphEdge, int, int>>>();
-        
+
 
         public void Ford_Falkerson(string startVertex, string sinkVertex)
         {
@@ -1886,7 +1867,7 @@ namespace Graphs.Graphs
 
             // Очищаем расширенный словарь Вершины-Список рёбер с пропускной способностью
             flowsOfEdges.Clear();
-            
+
             // Инициализируем путь словари для пути и меток вершин
             foreach (var pair in VertexEdges)
             {
@@ -1998,7 +1979,7 @@ namespace Graphs.Graphs
                 Console.WriteLine($"Минимальное значение потока ребра(оно же residual Capacity, оно же остаточная ёмкость), найденное на данном цикле - {minFlowValue}");
                 Console.WriteLine($"Общее значение максимального потока - {MaxFlow}");
                 Console.WriteLine();
-                
+
                 // Находим вершины для удаления и удаляем рёбра, ёмкость которых равна нулю
                 List<GraphVertex> verticesToDel = new List<GraphVertex>();
                 // Для каждой вершины 
@@ -2077,7 +2058,7 @@ namespace Graphs.Graphs
                 result = "Path was found!";
                 return;
             }
-            
+
             // Выбираем ребро с максимальной ёмкостью
             var tmp = flowsOfEdges[vertex].OrderBy(tuple => -tuple.Item3).Where(tuple => tuple.Item3 > 0).ToList();
 

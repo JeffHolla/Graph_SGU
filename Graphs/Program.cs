@@ -39,7 +39,7 @@ namespace Graphs
 
             //Task_IV_A_Dijkstra_6_Alt_Graph();
 
-            //Task_IV_B_Ford_Bellman__Floyd();
+            //Task_IV_B_Ford_Bellman();
 
             //Taks_IV_C_Ford_Bellman();
 
@@ -51,7 +51,7 @@ namespace Graphs
 
             //test();
 
-            //Stream_Algorithm_Ford_Falkerson();
+            Stream_Algorithm_Ford_Falkerson();
 
             //GraphFromUnity();
 
@@ -105,55 +105,55 @@ namespace Graphs
         {
             Graph graph = new Graph();
 
-            graph.AddVertices("S", "1", "2", "3", "4", "T");
-
-            graph.PrintVertices();
-            graph.PrintListEdges();
-
-            graph.AddEdgeDict("S", "1", weight: 16, is_oriented: true);
-            graph.AddEdgeDict("S", "2", weight: 13, is_oriented: true);
-
-            graph.AddEdgeDict("1", "3", weight: 12, is_oriented: true);
-            graph.AddEdgeDict("1", "2", weight: 10, is_oriented: true);
-
-            graph.AddEdgeDict("2", "1", weight: 4, is_oriented: true);
-            graph.AddEdgeDict("2", "4", weight: 14, is_oriented: true);
-
-            graph.AddEdgeDict("3", "T", weight: 20, is_oriented: true);
-            graph.AddEdgeDict("3", "2", weight: 9, is_oriented: true);
-
-            graph.AddEdgeDict("4", "3", weight: 7, is_oriented: true);
-            graph.AddEdgeDict("4", "T", weight: 4, is_oriented: true);
-
-            graph.PrintVertices();
-            graph.PrintListEdges();
-
-            graph.Ford_Falkerson("S", "T");
-
-            // ==============================================
-            //graph.AddVertices("S", "A", "B", "C", "D", "T");
+            //graph.AddVertices("S", "1", "2", "3", "4", "T");
 
             //graph.PrintVertices();
             //graph.PrintListEdges();
 
-            //graph.AddEdgeDict("S", "A", weight: 10, is_oriented: true);
-            //graph.AddEdgeDict("S", "C", weight: 10, is_oriented: true);
+            //graph.AddEdgeDict("S", "1", weight: 16, is_oriented: true);
+            //graph.AddEdgeDict("S", "2", weight: 13, is_oriented: true);
 
-            //graph.AddEdgeDict("A", "B", weight: 4, is_oriented: true);
-            //graph.AddEdgeDict("A", "D", weight: 8, is_oriented: true);
-            //graph.AddEdgeDict("A", "C", weight: 2, is_oriented: true);
+            //graph.AddEdgeDict("1", "3", weight: 12, is_oriented: true);
+            //graph.AddEdgeDict("1", "2", weight: 10, is_oriented: true);
 
-            //graph.AddEdgeDict("B", "T", weight: 10, is_oriented: true);
+            //graph.AddEdgeDict("2", "1", weight: 4, is_oriented: true);
+            //graph.AddEdgeDict("2", "4", weight: 14, is_oriented: true);
 
-            //graph.AddEdgeDict("C", "D", weight: 9, is_oriented: true);
+            //graph.AddEdgeDict("3", "T", weight: 20, is_oriented: true);
+            //graph.AddEdgeDict("3", "2", weight: 9, is_oriented: true);
 
-            //graph.AddEdgeDict("D", "T", weight: 10, is_oriented: true);
-            //graph.AddEdgeDict("D", "B", weight: 6, is_oriented: true);
+            //graph.AddEdgeDict("4", "3", weight: 7, is_oriented: true);
+            //graph.AddEdgeDict("4", "T", weight: 4, is_oriented: true);
 
             //graph.PrintVertices();
             //graph.PrintListEdges();
 
             //graph.Ford_Falkerson("S", "T");
+
+            // ==============================================
+            graph.AddVertices("S", "A", "B", "C", "D", "T");
+
+            graph.PrintVertices();
+            graph.PrintListEdges();
+
+            graph.AddEdgeDict("S", "A", weight: 10, is_oriented: true);
+            graph.AddEdgeDict("S", "C", weight: 10, is_oriented: true);
+
+            graph.AddEdgeDict("A", "B", weight: 4, is_oriented: true);
+            graph.AddEdgeDict("A", "D", weight: 8, is_oriented: true);
+            graph.AddEdgeDict("A", "C", weight: 2, is_oriented: true);
+
+            graph.AddEdgeDict("B", "T", weight: 10, is_oriented: true);
+
+            graph.AddEdgeDict("C", "D", weight: 9, is_oriented: true);
+
+            graph.AddEdgeDict("D", "T", weight: 10, is_oriented: true);
+            graph.AddEdgeDict("D", "B", weight: 6, is_oriented: true);
+
+            graph.PrintVertices();
+            graph.PrintListEdges();
+
+            graph.Ford_Falkerson("S", "T");
 
             // =================================================================
             //graph.AddVertices("V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8");
@@ -425,8 +425,6 @@ namespace Graphs
             graph.PrintVertices();
             graph.PrintListEdges();
             graph.PrintMatrix(1, true, false);
-            Console.WriteLine();
-            graph.PrintMatrix(1, true, true);
 
             //graph.Print_Dijkstra("V0");
             Console.WriteLine();
